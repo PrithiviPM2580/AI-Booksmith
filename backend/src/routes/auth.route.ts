@@ -4,18 +4,20 @@
 
 import { Router } from "express";
 import {
-	loginController,
-	logoutController,
-	refreshTokenController,
-	registerController,
+  getProfileController,
+  loginController,
+  logoutController,
+  refreshTokenController,
+  registerController,
 } from "@/controllers/auth.controller.js";
 import asyncHandlerMiddleware from "@/middlewares/async-handler.middleware.js";
 import {
-	limiters,
-	rateLimitingMiddleware,
+  limiters,
+  rateLimitingMiddleware,
 } from "@/middlewares/rate-limiting.middleware.js";
 import validateRequestMiddleware from "@/middlewares/validate-request.middleware.js";
 import { loginSchema, registerSchema } from "@/validator/auth.validator.js";
+import authenticateMiddleware from "@/middlewares/authenticate.middleware.js";
 
 // Create a new router instance
 const router: Router = Router();
@@ -28,9 +30,9 @@ const router: Router = Router();
 // @access  Public
 
 router.route("/register").post(
-	validateRequestMiddleware(registerSchema),
-	rateLimitingMiddleware(limiters.auth, (req) => req.ip as string),
-	asyncHandlerMiddleware(registerController),
+  validateRequestMiddleware(registerSchema),
+  rateLimitingMiddleware(limiters.auth, (req) => req.ip as string),
+  asyncHandlerMiddleware(registerController)
 );
 
 // ------------------------------------------------------
@@ -40,9 +42,9 @@ router.route("/register").post(
 // @route   POST /api/v1/auth/login
 // @access  Public
 router.route("/login").post(
-	validateRequestMiddleware(loginSchema),
-	rateLimitingMiddleware(limiters.auth, (req) => req.ip as string),
-	asyncHandlerMiddleware(loginController),
+  validateRequestMiddleware(loginSchema),
+  rateLimitingMiddleware(limiters.auth, (req) => req.ip as string),
+  asyncHandlerMiddleware(loginController)
 );
 
 // ------------------------------------------------------
@@ -52,8 +54,9 @@ router.route("/login").post(
 // @route   POST /api/v1/auth/logout
 // @access  Private
 router.route("/logout").post(
-	rateLimitingMiddleware(limiters.auth, (req) => req.user?.userId as string),
-	asyncHandlerMiddleware(logoutController),
+  authenticateMiddleware(["user"]),
+  rateLimitingMiddleware(limiters.auth, (req) => req.user?.userId as string),
+  asyncHandlerMiddleware(logoutController)
 );
 
 // ------------------------------------------------------
@@ -63,8 +66,8 @@ router.route("/logout").post(
 // @route   POST /api/v1/auth/refresh-token
 // @access  Public
 router.route("/refresh-token").post(
-	rateLimitingMiddleware(limiters.auth, (req) => req.ip as string),
-	asyncHandlerMiddleware(refreshTokenController),
+  rateLimitingMiddleware(limiters.auth, (req) => req.ip as string),
+  asyncHandlerMiddleware(refreshTokenController)
 );
 
 // ------------------------------------------------------
@@ -73,14 +76,23 @@ router.route("/refresh-token").post(
 // @desc    Get User Profile
 // @route   GET /api/v1/auth/profile
 // @access  Private
-// router.route("/profile").get();
+router.route("/profile").get(
+  authenticateMiddleware(["user"]),
+  rateLimitingMiddleware(limiters.api, (req) => req.user?.userId as string),
+  asyncHandlerMiddleware(getProfileController)
+);
 
 // ------------------------------------------------------
 // UpdateProfile route
 // ------------------------------------------------------
 // @desc    Update User Profile
-// @route   PUT /api/v1/auth/me
+// @route   PATCH /api/v1/auth/profile
 // @access  Private
-// router.route("/me").put();
+// router.route("/profile").patch(
+// 	  authenticateMiddleware(["user"]),
+// 	    rateLimitingMiddleware(limiters.api, (req) => req.user?.userId as string),
+// 		validateRequestMiddleware(),
+// 		asyncHandlerMiddleware()
+// );
 
 export default router;
