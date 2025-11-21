@@ -1,7 +1,8 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "",
+  "description": "AI-Booksmith is an AI-driven eBook generator built with MERN, allowing users to create and export fully written digital books effortlessly.",
+  "type": "module",
   "main": "index.js",
   "scripts": {
     "dev": "cross-env NODE_ENV=development tsx watch -r tsconfig-paths/register src/index.ts",

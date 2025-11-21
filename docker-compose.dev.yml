@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   backend:
-    container_name: backend_dev
+    container_name: ai_booksmith_backend_dev
 
     # Build the backend image
     build:
@@ -29,7 +29,7 @@ services:
       - mongodb
 
   mongodb:
-    container_name: mongodb_dev
+    container_name: ai_booksmith_mongodb_dev
     image: mongo:7
     restart: always
 
@@ -39,7 +39,7 @@ services:
 
     # Save database files locally (persistent data)
     volumes:
-      - mongodb_data:/data/db
+      - ai_booksmith_mongodb_data:/data/db
 
 volumes:
-  mongodb_data:
+  ai_booksmith_mongodb_data:
