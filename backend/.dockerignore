@@ -1,0 +1,30 @@
+# Ignore dependencies (they will be installed inside Docker)
+node_modules
+
+# Ignore build output (Docker will build fresh)
+dist
+
+# Ignore logs
+npm-debug.log
+pnpm-debug.log
+*.log
+
+# Ignore environment files (never send secrets to Docker)
+.env
+.env.*
+
+# Ignore git folder
+.git
+
+# Ignore editor configs
+.vscode
+.idea
+
+# Ignore test cache / temp files
+*.temp
+
+# Ignore husky (not needed in container)
+.husky
+
+# Ignore any coverage or other local-only files
+coverage
