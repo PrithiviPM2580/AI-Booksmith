@@ -8,11 +8,11 @@ import express, { type Express } from "express";
 const app: Express = express();
 
 import compression from "compression";
+import globalErrorHandlerMiddleware from "@/middlewares/global-error-handler.middleware.js";
 // ------------------------------------------------------
 // Imports
 // ------------------------------------------------------
 import routes from "@/routes/index.route.js";
-import globalErrorHandlerMiddleware from "@/middlewares/global-error-handler.middleware.js";
 
 // ------------------------------------------------------
 // Middlewares
