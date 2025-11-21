@@ -1,0 +1,45 @@
+version: "3.9"
+
+services:
+  backend:
+    container_name: backend_dev
+
+    # Build the backend image
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        PNPM_VERSION: 10.20.0 # Specify the pnpm version to use
+
+    # Map local port → container port
+    ports:
+      - "3000:3000"
+
+    # Live file syncing in development
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+
+    # Use environment variables from .env.development
+    env_file:
+      - ./backend/.env.development
+
+    # Start only after MongoDB is ready
+    depends_on:
+      - mongodb
+
+  mongodb:
+    container_name: mongodb_dev
+    image: mongo:7
+    restart: always
+
+    # Expose MongoDB outside container
+    ports:
+      - "27017:27017"
+
+    # Save database files locally (persistent data)
+    volumes:
+      - mongodb_data:/data/db
+
+volumes:
+  mongodb_data:
