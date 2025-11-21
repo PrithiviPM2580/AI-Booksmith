@@ -8,10 +8,11 @@ import bcrypt from "bcrypt";
 // Define User Interface
 // ------------------------------------------------------
 export interface IUser {
-  __id: Types.ObjectId;
+  _id: Types.ObjectId;
   name: string;
   email: string;
   password: string;
+  role: "user";
   avatarUrl?: string;
   isPro?: boolean;
   createdAt: Date;
@@ -33,9 +34,10 @@ export type UserObject = IUser;
 // ------------------------------------------------------
 const userSchema = new Schema<IUser, UserModelType, IUserMethods>(
   {
-    __id: { type: Schema.Types.ObjectId, required: true, auto: true },
+    _id: { type: Schema.Types.ObjectId, required: true, auto: true },
     name: { type: String, required: true, trim: true },
     email: { type: String, required: true, unique: true, trim: true },
+    role: { type: String, enum: ["user"], default: "user" },
     password: { type: String, required: true, trim: true, select: false },
     avatarUrl: { type: String, default: null },
     isPro: { type: Boolean, default: false },

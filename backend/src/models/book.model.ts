@@ -13,7 +13,7 @@ export interface IChapter {
 }
 
 export interface IBook {
-  __id: Types.ObjectId;
+  _id: Types.ObjectId;
   userId: Types.ObjectId;
   title: string;
   subtitle: string;
@@ -41,7 +41,7 @@ const chapterSchema = new Schema<IChapter>({
 
 const bookSchema = new Schema<IBook, BookModelType>(
   {
-    __id: { type: Schema.Types.ObjectId, required: true, auto: true },
+    _id: { type: Schema.Types.ObjectId, required: true, auto: true },
     userId: { type: Schema.Types.ObjectId, required: true, ref: "User" },
     title: { type: String, required: true, trim: true },
     subtitle: { type: String, trim: true, default: "" },

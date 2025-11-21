@@ -1,13 +1,13 @@
 // ============================================================
-// 🧩 RefreshTokenModel — Refresh token data model and schema definition
+// 🧩 TokenModel — Refresh token data model and schema definition
 // ============================================================
 import mongoose, { Schema, HydratedDocument, Model, Types } from "mongoose";
 
 // ------------------------------------------------------
-// Define RefreshToken Interface
+// Define Token Interface
 // ------------------------------------------------------
-export interface IRefreshToken {
-  __id: Types.ObjectId;
+export interface IToken {
+  _id: Types.ObjectId;
   userId: Types.ObjectId;
   token: string;
   userAgent: string;
@@ -18,16 +18,16 @@ export interface IRefreshToken {
 }
 
 // Document and Mode type
-export type RefreshTokenDocument = HydratedDocument<IRefreshToken>;
-export type RefreshTokenModelType = Model<IRefreshToken>;
-export type RefreshTokenObject = IRefreshToken;
+export type TokenDocument = HydratedDocument<IToken>;
+export type TokenModelType = Model<IToken>;
+export type TokenObject = IToken;
 
 // ------------------------------------------------------
-// Define RefreshToken Schema
+// Define Token Schema
 // ------------------------------------------------------
-const refreshTokenSchema = new Schema<IRefreshToken, RefreshTokenModelType>(
+const TokenSchema = new Schema<IToken, TokenModelType>(
   {
-    __id: { type: Schema.Types.ObjectId, required: true, auto: true },
+    _id: { type: Schema.Types.ObjectId, required: true, auto: true },
     userId: { type: Schema.Types.ObjectId, required: true, ref: "User" },
     token: { type: String, required: true, trim: true },
     userAgent: { type: String, required: true, trim: true },
@@ -41,20 +41,17 @@ const refreshTokenSchema = new Schema<IRefreshToken, RefreshTokenModelType>(
 
 // Transform output (remove password, __v)
 // ------------------------------------------------------
-refreshTokenSchema.set("toJSON", {
+TokenSchema.set("toJSON", {
   // it defines a custom transformation function that modifies the output when a document is converted to JSON.
-  transform(_, ret: Partial<IRefreshToken> & { __v?: number }) {
+  transform(_, ret: Partial<IToken> & { __v?: number }) {
     delete ret.__v;
     return ret;
   },
 });
 
 // ------------------------------------------------------
-// RefreshToken Model export
+// Token Model export
 // ------------------------------------------------------
-const RefreshTokenModel = mongoose.model<IRefreshToken>(
-  "RefreshToken",
-  refreshTokenSchema
-);
+const TokenModel = mongoose.model<IToken>("Token", TokenSchema);
 
-export default RefreshTokenModel;
+export default TokenModel;

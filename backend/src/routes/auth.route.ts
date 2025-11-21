@@ -72,7 +72,7 @@ router.route("/refresh-token").post(
 // @desc    Get User Profile
 // @route   GET /api/v1/auth/profile
 // @access  Private
-router.route("/profile").get();
+// router.route("/profile").get();
 
 // ------------------------------------------------------
 // UpdateProfile route
@@ -80,5 +80,6 @@ router.route("/profile").get();
 // @desc    Update User Profile
 // @route   PUT /api/v1/auth/me
 // @access  Private
-router.route("/me").put();
-// ------------------------------------------------------
+// router.route("/me").put();
+
+export default router;
