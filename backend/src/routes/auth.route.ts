@@ -1,20 +1,21 @@
 // ============================================================
 // 🧩 AuthRoute — Authentication routes and handlers
 // ============================================================
+
+import { Router } from "express";
 import {
-  loginController,
-  logoutController,
-  refreshTokenController,
-  registerController,
+	loginController,
+	logoutController,
+	refreshTokenController,
+	registerController,
 } from "@/controllers/auth.controller.js";
 import asyncHandlerMiddleware from "@/middlewares/async-handler.middleware.js";
 import {
-  limiters,
-  rateLimitingMiddleware,
+	limiters,
+	rateLimitingMiddleware,
 } from "@/middlewares/rate-limiting.middleware.js";
 import validateRequestMiddleware from "@/middlewares/validate-request.middleware.js";
 import { loginSchema, registerSchema } from "@/validator/auth.validator.js";
-import { Router } from "express";
 
 // Create a new router instance
 const router: Router = Router();
@@ -27,9 +28,9 @@ const router: Router = Router();
 // @access  Public
 
 router.route("/register").post(
-  validateRequestMiddleware(registerSchema),
-  rateLimitingMiddleware(limiters.auth, (req) => req.ip as string),
-  asyncHandlerMiddleware(registerController)
+	validateRequestMiddleware(registerSchema),
+	rateLimitingMiddleware(limiters.auth, (req) => req.ip as string),
+	asyncHandlerMiddleware(registerController),
 );
 
 // ------------------------------------------------------
@@ -39,9 +40,9 @@ router.route("/register").post(
 // @route   POST /api/v1/auth/login
 // @access  Public
 router.route("/login").post(
-  validateRequestMiddleware(loginSchema),
-  rateLimitingMiddleware(limiters.auth, (req) => req.ip as string),
-  asyncHandlerMiddleware(loginController)
+	validateRequestMiddleware(loginSchema),
+	rateLimitingMiddleware(limiters.auth, (req) => req.ip as string),
+	asyncHandlerMiddleware(loginController),
 );
 
 // ------------------------------------------------------
@@ -51,8 +52,8 @@ router.route("/login").post(
 // @route   POST /api/v1/auth/logout
 // @access  Private
 router.route("/logout").post(
-  rateLimitingMiddleware(limiters.auth, (req) => req.user?.userId as string),
-  asyncHandlerMiddleware(logoutController)
+	rateLimitingMiddleware(limiters.auth, (req) => req.user?.userId as string),
+	asyncHandlerMiddleware(logoutController),
 );
 
 // ------------------------------------------------------
@@ -62,8 +63,8 @@ router.route("/logout").post(
 // @route   POST /api/v1/auth/refresh-token
 // @access  Public
 router.route("/refresh-token").post(
-  rateLimitingMiddleware(limiters.auth, (req) => req.ip as string),
-  asyncHandlerMiddleware(refreshTokenController)
+	rateLimitingMiddleware(limiters.auth, (req) => req.ip as string),
+	asyncHandlerMiddleware(refreshTokenController),
 );
 
 // ------------------------------------------------------
