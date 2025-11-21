@@ -67,10 +67,6 @@ bookSchema.set("toJSON", {
 });
 
 // ------------------------------------------------------
-// Virtuals (it will not be stored in DB and sued to query and populate data)
-// ------------------------------------------------------
-
-// ------------------------------------------------------
 // Booke Model export
 // ------------------------------------------------------
 const BookModel = mongoose.model<IBook, BookModelType>("Book", bookSchema);

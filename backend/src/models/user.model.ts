@@ -31,7 +31,7 @@ export type UserObject = IUser;
 // ------------------------------------------------------
 // Define User Schema
 // ------------------------------------------------------
-const userschema = new Schema<IUser, UserModelType, IUserMethods>(
+const userSchema = new Schema<IUser, UserModelType, IUserMethods>(
   {
     __id: { type: Schema.Types.ObjectId, required: true, auto: true },
     name: { type: String, required: true, trim: true },
@@ -48,7 +48,7 @@ const userschema = new Schema<IUser, UserModelType, IUserMethods>(
 // ------------------------------------------------------
 // Hash Password before saving
 // ------------------------------------------------------
-userschema.pre<UserDocument>("save", async function () {
+userSchema.pre<UserDocument>("save", async function () {
   // only hash the password if it has been modified (or is new)
   if (!this.isModified("password")) return;
 
@@ -62,7 +62,7 @@ userschema.pre<UserDocument>("save", async function () {
 // ------------------------------------------------------
 // Method to compare passwords
 // ------------------------------------------------------
-userschema.method(
+userSchema.method(
   "comparePassword",
   async function (enteredPassword: string): Promise<boolean> {
     // it return true if passwords match else false
@@ -71,10 +71,31 @@ userschema.method(
 );
 
 // ------------------------------------------------------
+// Virtuals (it will not be stored in DB and sued to query and populate data)
+// ------------------------------------------------------
+userSchema.virtual("books", {
+  ref: "Book",
+  localField: "__id",
+  foreignField: "userId",
+});
+
+userSchema.virtual("refreshTokens", {
+  ref: "RefreshToken",
+  localField: "__id",
+  foreignField: "userId",
+});
+
+userSchema.set("toObject", {
+  virtuals: true,
+});
+
+// ------------------------------------------------------
 // Transform output (remove password, __v)
 // ------------------------------------------------------
-userschema.set("toJSON", {
+userSchema.set("toJSON", {
   // it defines a custom transformation function that modifies the output when a document is converted to JSON.
+  virtuals: true,
+  versionKey: false,
   transform(_, ret: Partial<IUser> & { __v?: number }) {
     delete ret.password;
     delete ret.__v;
@@ -83,12 +104,8 @@ userschema.set("toJSON", {
 });
 
 // ------------------------------------------------------
-// Virtuals (it will not be stored in DB and sued to query and populate data)
-// ------------------------------------------------------
-
-// ------------------------------------------------------
 // User Model export
 // ------------------------------------------------------
-const UserModel = mongoose.model<IUser, IUserMethods>("User", userschema);
+const UserModel = mongoose.model<IUser, UserModelType>("User", userSchema);
 
 export default UserModel;
