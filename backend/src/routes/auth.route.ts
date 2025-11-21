@@ -4,24 +4,24 @@
 
 import { Router } from "express";
 import {
-	getProfileController,
-	loginController,
-	logoutController,
-	refreshTokenController,
-	registerController,
-	updateProfileController,
+  getProfileController,
+  loginController,
+  logoutController,
+  refreshTokenController,
+  registerController,
+  updateProfileController,
 } from "@/controllers/auth.controller.js";
 import asyncHandlerMiddleware from "@/middlewares/async-handler.middleware.js";
 import authenticateMiddleware from "@/middlewares/authenticate.middleware.js";
 import {
-	limiters,
-	rateLimitingMiddleware,
+  limiters,
+  rateLimitingMiddleware,
 } from "@/middlewares/rate-limiting.middleware.js";
 import validateRequestMiddleware from "@/middlewares/validate-request.middleware.js";
 import {
-	loginSchema,
-	registerSchema,
-	updateProfileSchema,
+  loginSchema,
+  registerSchema,
+  updateProfileSchema,
 } from "@/validator/auth.validator.js";
 
 // Create a new router instance
@@ -35,9 +35,9 @@ const router: Router = Router();
 // @access  Public
 
 router.route("/register").post(
-	validateRequestMiddleware(registerSchema),
-	rateLimitingMiddleware(limiters.auth, (req) => req.ip as string),
-	asyncHandlerMiddleware(registerController),
+  validateRequestMiddleware(registerSchema), // Validate request body
+  rateLimitingMiddleware(limiters.auth, (req) => req.ip as string), // Apply rate limiting
+  asyncHandlerMiddleware(registerController) // Handle the request asynchronously
 );
 
 // ------------------------------------------------------
@@ -47,9 +47,9 @@ router.route("/register").post(
 // @route   POST /api/v1/auth/login
 // @access  Public
 router.route("/login").post(
-	validateRequestMiddleware(loginSchema),
-	rateLimitingMiddleware(limiters.auth, (req) => req.ip as string),
-	asyncHandlerMiddleware(loginController),
+  validateRequestMiddleware(loginSchema), // Validate request body
+  rateLimitingMiddleware(limiters.auth, (req) => req.ip as string), // Apply rate limiting
+  asyncHandlerMiddleware(loginController) // Handle the request asynchronously
 );
 
 // ------------------------------------------------------
@@ -59,9 +59,9 @@ router.route("/login").post(
 // @route   POST /api/v1/auth/logout
 // @access  Private
 router.route("/logout").post(
-	authenticateMiddleware(["user"]),
-	rateLimitingMiddleware(limiters.auth, (req) => req.user?.userId as string),
-	asyncHandlerMiddleware(logoutController),
+  authenticateMiddleware(["user"]), // Authenticate user
+  rateLimitingMiddleware(limiters.auth, (req) => req.user?.userId as string), // Apply rate limiting
+  asyncHandlerMiddleware(logoutController) // Handle the request asynchronously
 );
 
 // ------------------------------------------------------
@@ -71,8 +71,8 @@ router.route("/logout").post(
 // @route   POST /api/v1/auth/refresh-token
 // @access  Public
 router.route("/refresh-token").post(
-	rateLimitingMiddleware(limiters.auth, (req) => req.ip as string),
-	asyncHandlerMiddleware(refreshTokenController),
+  rateLimitingMiddleware(limiters.auth, (req) => req.ip as string), // Apply rate limiting
+  asyncHandlerMiddleware(refreshTokenController) // Handle the request asynchronously
 );
 
 // ------------------------------------------------------
@@ -82,9 +82,9 @@ router.route("/refresh-token").post(
 // @route   GET /api/v1/auth/profile
 // @access  Private
 router.route("/profile").get(
-	authenticateMiddleware(["user"]),
-	rateLimitingMiddleware(limiters.api, (req) => req.user?.userId as string),
-	asyncHandlerMiddleware(getProfileController),
+  authenticateMiddleware(["user"]), // Authenticate user
+  rateLimitingMiddleware(limiters.api, (req) => req.user?.userId as string), // Apply rate limiting
+  asyncHandlerMiddleware(getProfileController) // Handle the request asynchronously
 );
 
 // ------------------------------------------------------
@@ -94,10 +94,10 @@ router.route("/profile").get(
 // @route   PATCH /api/v1/auth/profile
 // @access  Private
 router.route("/profile").patch(
-	authenticateMiddleware(["user"]),
-	rateLimitingMiddleware(limiters.api, (req) => req.user?.userId as string),
-	validateRequestMiddleware(updateProfileSchema),
-	asyncHandlerMiddleware(updateProfileController),
+  authenticateMiddleware(["user"]), // Authenticate user
+  rateLimitingMiddleware(limiters.api, (req) => req.user?.userId as string), // Apply rate limiting
+  validateRequestMiddleware(updateProfileSchema), // Validate request body
+  asyncHandlerMiddleware(updateProfileController) // Handle the request asynchronously
 );
 
 export default router;
