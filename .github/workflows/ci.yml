@@ -1,0 +1,57 @@
+name: CI (Frontend and Backend)
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: ${{github.workflow}}-${{github.ref}}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend CI
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [18, 20, 22]
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9
+
+      - name: Setup Nodejs
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{matrix.node}}
+          cache: "pnpm"
+          cache-dependency-path: backend/pnpm-lock.yaml
+
+      - name: Install dependencies (backend)
+        run: pnpm install --frozen-lockfile
+        working-directory: backend
+
+      - name: Lint Check (backend)
+        run: pnpm lint
+        working-directory: backend
+
+      - name: Format Check (backend)
+        run: pnpm format:check
+        working-directory: backend
+
+      - name: Type Check (backend)
+        run: pnpm type-check
+        working-directory: backend
+
+      - name: Build (backend)
+        run: pnpm build
+        working-directory: backend
