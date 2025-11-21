@@ -1,0 +1,21 @@
+{
+	"compilerOptions": {
+		"target": "es2022",
+		"types": ["node", "vitest"],
+		"module": "node20",
+		"outDir": "dist",
+		"rootDir": "src",
+		"baseUrl": ".",
+		"strict": true,
+		"esModuleInterop": true,
+		"removeComments": true,
+		"skipLibCheck": true,
+		"forceConsistentCasingInFileNames": true,
+		"paths": {
+			"@/*": ["src/*"],
+			"@types/*": ["src/types/*"]
+		}
+	},
+	"include": ["src/**/*.ts", "test/**/*.ts"],
+	"exclude": ["node_modules", "dist"]
+}
