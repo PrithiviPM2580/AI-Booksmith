@@ -40,7 +40,7 @@ declare global {
 	type Role = "user";
 
 	type TokenPayload = {
-		userId: string;
+		userId: Types.ObjectId;
 		role: "user";
 	};
 

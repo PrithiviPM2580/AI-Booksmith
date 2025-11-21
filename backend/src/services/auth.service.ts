@@ -2,7 +2,6 @@
 // 🧩 AuthService — Handles authentication-related business logic
 // ============================================================
 import type { Request } from "express";
-import config from "@/config/env.config.js";
 import {
 	createToken,
 	createUser,
@@ -29,9 +28,6 @@ export const registerService = async (
 ) => {
 	// Extract user data
 	const { email } = userData;
-
-	// Determine user role based on email
-	const role = config.ADMIN_EMAIL.includes(email) ? "admin" : "user";
 
 	// Check if user already exists
 	const userExists = await isUserExistsByEmail(email);
@@ -61,19 +57,18 @@ export const registerService = async (
 	// Create the new user
 	const newUser = await createUser({
 		_id,
-		role,
 		...userData,
 	});
 
 	// Generate access token
 	const accessToken = jwtLib.generateAccessToken({
-		userId: newUser._id.toString(),
+		userId: newUser._id,
 		role: newUser.role,
 	});
 
 	// Generate refresh token
 	const refreshToken = jwtLib.generateRefreshToken({
-		userId: newUser._id.toString(),
+		userId: newUser._id,
 		role: newUser.role,
 	});
 
