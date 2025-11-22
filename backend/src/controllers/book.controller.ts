@@ -17,6 +17,7 @@ import {
   getBookService,
   updateBookService,
   deleteBookService,
+  updateBookCoverService,
 } from "@/services/book.service.js";
 import { successResponse } from "@/utils/index.util.js";
 
@@ -297,16 +298,20 @@ export const deleteBookController = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
+  // Extract bookId from request parameters
   const bookId = req.params.bookId as DeleteBookParams["bookId"];
 
+  // Extract userId from request
   const userId = req.user?.userId as string;
 
   // Validate userId
   if (!userId) {
+    // Log error and return unauthorized response
     logger.error("User ID is missing in request", {
       label: "BookController",
     });
 
+    //  Return unauthorized error
     return next(
       new APIError(401, "Unauthorized access - User not authenticated", {
         type: "AUTHENTICATION_ERROR",
@@ -322,10 +327,12 @@ export const deleteBookController = async (
 
   // Validate bookId
   if (!bookId) {
+    // Log error and return bad request response
     logger.error("Book ID is missing in request", {
       label: "BookController",
     });
 
+    //  Return bad request error
     return next(
       new APIError(400, "Book ID is required to delete the book", {
         type: "VALIDATION_ERROR",
@@ -339,11 +346,128 @@ export const deleteBookController = async (
     );
   }
 
+  // Delete the book using the service
   await deleteBookService(userId, bookId);
 
+  // Log success message
   logger.info(`Book deleted successfully with ID: ${bookId}`, {
     label: "BookController",
   });
 
+  // Send success response
   successResponse(res, 200, "Book deleted successfully");
+};
+
+// ------------------------------------------------------
+// updateBookCoverController() — Handles updating the cover of a book
+// ------------------------------------------------------
+export const updateBookCoverController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  // Extract bookId from request parameters
+  const bookId = req.params.bookId as UpdateBookParams["bookId"];
+
+  // Extract userId from request
+  const userId = req.user?.userId as string;
+
+  // Validate userId
+  if (!userId) {
+    // Log error and return unauthorized response
+    logger.error("User ID is missing in request", {
+      label: "BookController",
+    });
+
+    //  Return unauthorized error
+    return next(
+      new APIError(401, "Unauthorized access - User not authenticated", {
+        type: "AUTHENTICATION_ERROR",
+        details: [
+          {
+            field: "userId",
+            message: "User ID is required to update book cover",
+          },
+        ],
+      })
+    );
+  }
+
+  // Validate bookId
+  if (!bookId) {
+    // Log error and return bad request response
+    logger.error("Book ID is missing in request", {
+      label: "BookController",
+    });
+
+    //  Return bad request error
+    return next(
+      new APIError(400, "Book ID is required to update the book cover", {
+        type: "VALIDATION_ERROR",
+        details: [
+          {
+            field: "bookId",
+            message: "Book ID cannot be null or undefined",
+          },
+        ],
+      })
+    );
+  }
+
+  // Validate that a file is provided
+  if (!req.file) {
+    // Log error and return bad request response
+    logger.error("Cover image file is missing in request", {
+      label: "BookController",
+    });
+
+    //  Return bad request error
+    return next(
+      new APIError(
+        400,
+        "Cover image file is required to update the book cover",
+        {
+          type: "VALIDATION_ERROR",
+          details: [
+            {
+              field: "coverImage",
+              message: "Cover image file cannot be null or undefined",
+            },
+          ],
+        }
+      )
+    );
+  }
+
+  // Update the book cover using the service
+  const updatedBook = await updateBookCoverService(userId, bookId, req.file);
+
+  // Check if book cover update was successful
+  if (!updatedBook) {
+    // Log error and return internal server error response
+    logger.error("Failed to update book cover", {
+      label: "BookController",
+    });
+
+    // Return error response
+    return next(
+      new APIError(500, "Failed to update book cover", {
+        type: "BOOK_COVER_UPDATE_ERROR",
+        details: [
+          {
+            field: "bookCover",
+            message: "Book cover could not be updated due to an internal error",
+          },
+        ],
+      })
+    );
+  }
+
+  // Log success message
+  logger.info(`Book cover updated successfully with ID: ${bookId}`, {
+    label: "BookController",
+  });
+
+  // Send success response with updated book data
+  successResponse(res, 200, "Book cover updated successfully", updatedBook);
 };

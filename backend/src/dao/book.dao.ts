@@ -66,3 +66,20 @@ export const deleteBookById = async (bookId: Types.ObjectId) => {
   // Find the book by ID and delete it
   return await BookModel.findByIdAndDelete(bookId).exec();
 };
+
+// ------------------------------------------------------
+// updateBookCoverById() — Updates the cover image URL of a specific book by its ID
+// ------------------------------------------------------
+export const updateBookCoverById = async (
+  bookId: Types.ObjectId,
+  coverImageUrl: string
+) => {
+  // Find the book by ID and update its cover image URL
+  return await BookModel.findByIdAndUpdate(
+    bookId,
+    { $set: { coverImageUrl } },
+    { new: true }
+  )
+    .lean()
+    .exec();
+};

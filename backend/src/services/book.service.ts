@@ -13,8 +13,10 @@ import {
   findBookById,
   updateBookById,
   deleteBookById,
+  updateBookCoverById,
 } from "@/dao/book.dao.js";
 import { Types } from "mongoose";
+import { uploadToCloudinary } from "@/utils/index.util.js";
 
 // ------------------------------------------------------
 // createBookService() — Creates a new book entry
@@ -330,7 +332,94 @@ export const deleteBookService = async (
     });
   }
 
+  // Delete the book
   await deleteBookById(objectId);
 
+  // Return true indicating successful deletion
   return true;
+};
+
+// ------------------------------------------------------
+// updateBookCoverService() — Updates the cover image of a specific book by ID
+// ------------------------------------------------------
+export const updateBookCoverService = async (
+  userId: string,
+  bookId: string,
+  coverImageFile: Express.Multer.File
+) => {
+  // Validate coverImageFile
+  if (!coverImageFile) {
+    // Log error and throw APIError
+    logger.error("Cover image file is missing in updateBookCoverService", {
+      label: "BookService",
+    });
+
+    //  Throw validation error
+    throw new APIError(
+      400,
+      "Cover image file is required to update the book cover",
+      {
+        type: "VALIDATION_ERROR",
+        details: [
+          {
+            field: "coverImageFile",
+            message: "Cover image file cannot be null or undefined",
+          },
+        ],
+      }
+    );
+  }
+
+  // Convert bookId to ObjectId
+  const objectId = new Types.ObjectId(bookId);
+
+  // Retrieve the book by ID to ensure it exists
+  const book = await findBookById(objectId);
+
+  // Check if book exists
+  if (!book) {
+    // Log error and throw APIError
+    logger.error(`Book not found for ID: ${bookId} in updateBookCoverService`, {
+      label: "BookService",
+    });
+
+    //  Throw not found error
+    throw new APIError(404, "Book not found", {
+      type: "NOT_FOUND_ERROR",
+      details: [
+        {
+          field: "bookId",
+          message: `No book found with ID: ${bookId}`,
+        },
+      ],
+    });
+  }
+
+  // Check if the user is authorized to update the book cover
+  if (book.userId.toString() !== userId) {
+    // Log error and throw APIError
+    logger.error(`Unauthorized access attempt for book ID: ${bookId}`, {
+      label: "BookService",
+    });
+
+    //  Throw authorization error
+    throw new APIError(403, "Unauthorized to access this book", {
+      type: "AUTHORIZATION_ERROR",
+      details: [
+        {
+          field: "userId",
+          message: `User ID: ${userId} is not authorized to access book with ID: ${bookId}`,
+        },
+      ],
+    });
+  }
+
+  // Upload the cover image to Cloudinary
+  const coverUrl = await uploadToCloudinary(coverImageFile.buffer, "books");
+
+  // Update the book's cover image URL
+  const updatedBook = await updateBookCoverById(objectId, coverUrl);
+
+  // Return the updated book document
+  return updatedBook;
 };

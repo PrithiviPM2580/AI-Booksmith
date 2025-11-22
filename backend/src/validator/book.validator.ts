@@ -81,6 +81,15 @@ export const deleteBookSchema = {
 };
 
 // ------------------------------------------------------
+// updateBookCoverSchema{} — Validation schema for updating a book cover image
+// ------------------------------------------------------
+export const updateBookCoverSchema = {
+  params: z.object({
+    bookId: z.string("Book ID must be a string").min(1, "Book ID is required"),
+  }),
+};
+
+// ------------------------------------------------------
 // Define the type defination of the schemas
 // ------------------------------------------------------
 export type CreateBookInput = z.infer<typeof createBookSchema.body>;
@@ -88,3 +97,6 @@ export type GetBookParams = z.infer<typeof getBookSchema.params>;
 export type UpdateBookInput = z.infer<typeof updateBookSchema.body>;
 export type UpdateBookParams = z.infer<typeof updateBookSchema.params>;
 export type DeleteBookParams = z.infer<typeof deleteBookSchema.params>;
+export type UpdateBookCoverParams = z.infer<
+  typeof updateBookCoverSchema.params
+>;

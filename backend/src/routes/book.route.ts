@@ -7,9 +7,11 @@ import {
   getAllBooksController,
   getBookController,
   updateBookController,
+  updateBookCoverController,
 } from "@/controllers/book.controller.js";
 import asyncHandlerMiddleware from "@/middlewares/async-handler.middleware.js";
 import authenticateMiddleware from "@/middlewares/authenticate.middleware.js";
+import { uploadSingle } from "@/middlewares/multer.middleware.js";
 import {
   limiters,
   rateLimitingMiddleware,
@@ -20,6 +22,7 @@ import {
   deleteBookSchema,
   getBookSchema,
   updateBookSchema,
+  updateBookCoverSchema,
 } from "@/validator/book.validator.js";
 import { Router } from "express";
 
@@ -96,6 +99,12 @@ router.route("/:bookId").patch(
 // @desc    Update book cover image
 // @route   PUT /api/v1/books/cover/:bookId
 // @access  Private
-router.route("/cover/:bookId").put();
+router.route("/cover/:bookId").put(
+  authenticateMiddleware(["user"]),
+  rateLimitingMiddleware(limiters.user, (req) => req.user?.userId as string),
+  uploadSingle("coverImage"),
+  validateRequestMiddleware(updateBookCoverSchema),
+  asyncHandlerMiddleware(updateBookCoverController)
+);
 
 export default router;
