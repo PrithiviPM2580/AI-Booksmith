@@ -2,6 +2,7 @@
 // 🧩 AuthService — Handles authentication-related business logic
 // ============================================================
 import type { Request } from "express";
+import { Types } from "mongoose";
 import {
 	createToken,
 	createUser,
@@ -68,13 +69,13 @@ export const registerService = async (
 
 	// Generate access token
 	const accessToken = jwtLib.generateAccessToken({
-		userId: newUser._id,
+		userId: newUser._id.toString(),
 		role: newUser.role,
 	});
 
 	// Generate refresh token
 	const refreshToken = jwtLib.generateRefreshToken({
-		userId: newUser._id,
+		userId: newUser._id.toString(),
 		role: newUser.role,
 	});
 
@@ -305,7 +306,7 @@ export const refreshTokenService = async (oldToken: string, req: Request) => {
 	// Store new refresh token in database
 	await createToken({
 		_id: generateMongooseId(),
-		userId: jwtPayload.userId,
+		userId: new Types.ObjectId(jwtPayload.userId),
 		token: newRefreshToken,
 		userAgent: req.headers["user-agent"] || "",
 		ipAddress: req.ip || req.socket.remoteAddress || "",

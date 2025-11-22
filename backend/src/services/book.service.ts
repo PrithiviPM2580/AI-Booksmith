@@ -1,425 +1,426 @@
 // ============================================================
 // 🧩 BookService — Handles book-related business logic
 // ============================================================
-import {
-  CreateBookInput,
-  UpdateBookInput,
-} from "@/validator/book.validator.js";
-import logger from "@/lib/logger.lib.js";
-import APIError from "@/lib/api-error.lib.js";
-import {
-  createBook,
-  findAllBooksByUserId,
-  findBookById,
-  updateBookById,
-  deleteBookById,
-  updateBookCoverById,
-} from "@/dao/book.dao.js";
+
 import { Types } from "mongoose";
+import {
+	createBook,
+	deleteBookById,
+	findAllBooksByUserId,
+	findBookById,
+	updateBookById,
+	updateBookCoverById,
+} from "@/dao/book.dao.js";
+import APIError from "@/lib/api-error.lib.js";
+import logger from "@/lib/logger.lib.js";
 import { uploadToCloudinary } from "@/utils/index.util.js";
+import type {
+	CreateBookInput,
+	UpdateBookInput,
+} from "@/validator/book.validator.js";
 
 // ------------------------------------------------------
 // createBookService() — Creates a new book entry
 // ------------------------------------------------------
 export const createBookService = async (
-  userId: string,
-  bookData: CreateBookInput
+	userId: string,
+	bookData: CreateBookInput,
 ) => {
-  // Validate userId
-  if (!userId) {
-    // Log error and throw APIError
-    logger.error("User ID is missing in createBookService", {
-      label: "BookService",
-    });
+	// Validate userId
+	if (!userId) {
+		// Log error and throw APIError
+		logger.error("User ID is missing in createBookService", {
+			label: "BookService",
+		});
 
-    //  Throw validation error
-    throw new APIError(400, "User ID is required to create a book", {
-      type: "VALIDATION_ERROR",
-      details: [
-        {
-          field: "userId",
-          message: "User ID cannot be null or undefined",
-        },
-      ],
-    });
-  }
+		//  Throw validation error
+		throw new APIError(400, "User ID is required to create a book", {
+			type: "VALIDATION_ERROR",
+			details: [
+				{
+					field: "userId",
+					message: "User ID cannot be null or undefined",
+				},
+			],
+		});
+	}
 
-  // Destructure book data
-  const { title, author, subtitle, chapters } = bookData;
+	// Destructure book data
+	const { title, author, subtitle, chapters } = bookData;
 
-  // Convert userId to ObjectId
-  const objectId = new Types.ObjectId(userId);
+	// Convert userId to ObjectId
+	const objectId = new Types.ObjectId(userId);
 
-  // Create new book entry
-  const newBook = await createBook({
-    userId: objectId,
-    title,
-    author,
-    subtitle,
-    chapters,
-  });
+	// Create new book entry
+	const newBook = await createBook({
+		userId: objectId,
+		title,
+		author,
+		subtitle,
+		chapters,
+	});
 
-  // Return the created book document
-  return newBook;
+	// Return the created book document
+	return newBook;
 };
 
 // ------------------------------------------------------
 // getAllBooksService() —
 // ------------------------------------------------------
 export const getAllBooksService = async (userId: string) => {
-  // Validate userId
-  if (!userId) {
-    // Log error and throw APIError
-    logger.error("User ID is missing in getAllBooksService", {
-      label: "BookService",
-    });
+	// Validate userId
+	if (!userId) {
+		// Log error and throw APIError
+		logger.error("User ID is missing in getAllBooksService", {
+			label: "BookService",
+		});
 
-    //  Throw validation error
-    throw new APIError(400, "User ID is required to get books", {
-      type: "VALIDATION_ERROR",
-      details: [
-        {
-          field: "userId",
-          message: "User ID cannot be null or undefined",
-        },
-      ],
-    });
-  }
+		//  Throw validation error
+		throw new APIError(400, "User ID is required to get books", {
+			type: "VALIDATION_ERROR",
+			details: [
+				{
+					field: "userId",
+					message: "User ID cannot be null or undefined",
+				},
+			],
+		});
+	}
 
-  // Convert userId to ObjectId
-  const objectId = new Types.ObjectId(userId);
+	// Convert userId to ObjectId
+	const objectId = new Types.ObjectId(userId);
 
-  // Retrieve all books for the user
-  const books = await findAllBooksByUserId(objectId);
+	// Retrieve all books for the user
+	const books = await findAllBooksByUserId(objectId);
 
-  // Return the list of books
-  return books;
+	// Return the list of books
+	return books;
 };
 
 // ------------------------------------------------------
 // getBookService() — Retrieves a specific book by ID
 // ------------------------------------------------------
 export const getBookService = async (bookId: string, userId: string) => {
-  if (!bookId) {
-    // Log error and throw APIError
-    logger.error("Book ID is missing in getBookService", {
-      label: "BookService",
-    });
+	if (!bookId) {
+		// Log error and throw APIError
+		logger.error("Book ID is missing in getBookService", {
+			label: "BookService",
+		});
 
-    //  Throw validation error
-    throw new APIError(400, "Book ID is required to get the book", {
-      type: "VALIDATION_ERROR",
-      details: [
-        {
-          field: "bookId",
-          message: "Book ID cannot be null or undefined",
-        },
-      ],
-    });
-  }
+		//  Throw validation error
+		throw new APIError(400, "Book ID is required to get the book", {
+			type: "VALIDATION_ERROR",
+			details: [
+				{
+					field: "bookId",
+					message: "Book ID cannot be null or undefined",
+				},
+			],
+		});
+	}
 
-  // Convert bookId to ObjectId
-  const objectId = new Types.ObjectId(bookId);
+	// Convert bookId to ObjectId
+	const objectId = new Types.ObjectId(bookId);
 
-  // Retrieve the book by ID
-  const book = await findBookById(objectId);
+	// Retrieve the book by ID
+	const book = await findBookById(objectId);
 
-  if (!book) {
-    // Log error and throw APIError
-    logger.error(`Book not found for ID: ${bookId} in getBookService`, {
-      label: "BookService",
-    });
+	if (!book) {
+		// Log error and throw APIError
+		logger.error(`Book not found for ID: ${bookId} in getBookService`, {
+			label: "BookService",
+		});
 
-    //  Throw not found error
-    throw new APIError(404, "Book not found", {
-      type: "NOT_FOUND_ERROR",
-      details: [
-        {
-          field: "bookId",
-          message: `No book found with ID: ${bookId}`,
-        },
-      ],
-    });
-  }
+		//  Throw not found error
+		throw new APIError(404, "Book not found", {
+			type: "NOT_FOUND_ERROR",
+			details: [
+				{
+					field: "bookId",
+					message: `No book found with ID: ${bookId}`,
+				},
+			],
+		});
+	}
 
-  if (book.userId.toString() !== userId) {
-    logger.error(`Unauthorized access attempt for book ID: ${bookId}`, {
-      label: "BookService",
-    });
+	if (book.userId.toString() !== userId) {
+		logger.error(`Unauthorized access attempt for book ID: ${bookId}`, {
+			label: "BookService",
+		});
 
-    throw new APIError(403, "Unauthorized to access this book", {
-      type: "AUTHORIZATION_ERROR",
-      details: [
-        {
-          field: "userId",
-          message: `User ID: ${userId} is not authorized to access book with ID: ${bookId}`,
-        },
-      ],
-    });
-  }
+		throw new APIError(403, "Unauthorized to access this book", {
+			type: "AUTHORIZATION_ERROR",
+			details: [
+				{
+					field: "userId",
+					message: `User ID: ${userId} is not authorized to access book with ID: ${bookId}`,
+				},
+			],
+		});
+	}
 
-  // Return the found book
-  return book;
+	// Return the found book
+	return book;
 };
 
 // ------------------------------------------------------
 // updateBookService() — Updates a specific book by ID
 // ------------------------------------------------------
 export const updateBookService = async (
-  userId: string,
-  bookId: string,
-  updateData: UpdateBookInput
+	userId: string,
+	bookId: string,
+	updateData: UpdateBookInput,
 ) => {
-  // Validate userId and bookId
-  if (!userId) {
-    // Log error and throw APIError
-    logger.error("User ID is missing in updateBookService", {
-      label: "BookService",
-    });
+	// Validate userId and bookId
+	if (!userId) {
+		// Log error and throw APIError
+		logger.error("User ID is missing in updateBookService", {
+			label: "BookService",
+		});
 
-    //  Throw validation error
-    throw new APIError(400, "User ID is required to update the book", {
-      type: "VALIDATION_ERROR",
-      details: [
-        {
-          field: "userId",
-          message: "User ID cannot be null or undefined",
-        },
-      ],
-    });
-  }
+		//  Throw validation error
+		throw new APIError(400, "User ID is required to update the book", {
+			type: "VALIDATION_ERROR",
+			details: [
+				{
+					field: "userId",
+					message: "User ID cannot be null or undefined",
+				},
+			],
+		});
+	}
 
-  // Validate bookId
-  if (!bookId) {
-    // Log error and throw APIError
-    logger.error("Book ID is missing in updateBookService", {
-      label: "BookService",
-    });
+	// Validate bookId
+	if (!bookId) {
+		// Log error and throw APIError
+		logger.error("Book ID is missing in updateBookService", {
+			label: "BookService",
+		});
 
-    //  Throw validation error
-    throw new APIError(400, "Book ID is required to update the book", {
-      type: "VALIDATION_ERROR",
-      details: [
-        {
-          field: "bookId",
-          message: "Book ID cannot be null or undefined",
-        },
-      ],
-    });
-  }
+		//  Throw validation error
+		throw new APIError(400, "Book ID is required to update the book", {
+			type: "VALIDATION_ERROR",
+			details: [
+				{
+					field: "bookId",
+					message: "Book ID cannot be null or undefined",
+				},
+			],
+		});
+	}
 
-  // Convert bookId to ObjectId
-  const objectId = new Types.ObjectId(bookId);
+	// Convert bookId to ObjectId
+	const objectId = new Types.ObjectId(bookId);
 
-  // Retrieve the book by ID to ensure it exists
-  const book = await findBookById(objectId);
+	// Retrieve the book by ID to ensure it exists
+	const book = await findBookById(objectId);
 
-  // Check if book exists
-  if (!book) {
-    // Log error and throw APIError
-    logger.error(`Book not found for ID: ${bookId} in updateBookService`, {
-      label: "BookService",
-    });
+	// Check if book exists
+	if (!book) {
+		// Log error and throw APIError
+		logger.error(`Book not found for ID: ${bookId} in updateBookService`, {
+			label: "BookService",
+		});
 
-    //  Throw not found error
-    throw new APIError(404, "Book not found", {
-      type: "NOT_FOUND_ERROR",
-      details: [
-        {
-          field: "bookId",
-          message: `No book found with ID: ${bookId}`,
-        },
-      ],
-    });
-  }
+		//  Throw not found error
+		throw new APIError(404, "Book not found", {
+			type: "NOT_FOUND_ERROR",
+			details: [
+				{
+					field: "bookId",
+					message: `No book found with ID: ${bookId}`,
+				},
+			],
+		});
+	}
 
-  // Check if the user is authorized to update the book
-  if (book.userId.toString() !== userId) {
-    // Log error and throw APIError
-    logger.error(`Unauthorized update attempt for book ID: ${bookId}`, {
-      label: "BookService",
-    });
+	// Check if the user is authorized to update the book
+	if (book.userId.toString() !== userId) {
+		// Log error and throw APIError
+		logger.error(`Unauthorized update attempt for book ID: ${bookId}`, {
+			label: "BookService",
+		});
 
-    //  Throw authorization error
-    throw new APIError(403, "Unauthorized to update this book", {
-      type: "AUTHORIZATION_ERROR",
-      details: [
-        {
-          field: "userId",
-          message: `User ID: ${userId} is not authorized to update book with ID: ${bookId}`,
-        },
-      ],
-    });
-  }
+		//  Throw authorization error
+		throw new APIError(403, "Unauthorized to update this book", {
+			type: "AUTHORIZATION_ERROR",
+			details: [
+				{
+					field: "userId",
+					message: `User ID: ${userId} is not authorized to update book with ID: ${bookId}`,
+				},
+			],
+		});
+	}
 
-  // Update the book with the provided data
-  const updatedBook = await updateBookById(objectId, updateData);
+	// Update the book with the provided data
+	const updatedBook = await updateBookById(objectId, updateData);
 
-  // Check if the update was successful
-  if (!updatedBook) {
-    // Log error and throw APIError
-    logger.error(
-      `Failed to update book for ID: ${bookId} in updateBookService`,
-      {
-        label: "BookService",
-      }
-    );
+	// Check if the update was successful
+	if (!updatedBook) {
+		// Log error and throw APIError
+		logger.error(
+			`Failed to update book for ID: ${bookId} in updateBookService`,
+			{
+				label: "BookService",
+			},
+		);
 
-    //  Throw internal server error
-    throw new APIError(500, "Failed to update the book", {
-      type: "INTERNAL_SERVER_ERROR",
-      details: [
-        {
-          field: "bookId",
-          message: `Could not update book with ID: ${bookId}`,
-        },
-      ],
-    });
-  }
+		//  Throw internal server error
+		throw new APIError(500, "Failed to update the book", {
+			type: "INTERNAL_SERVER_ERROR",
+			details: [
+				{
+					field: "bookId",
+					message: `Could not update book with ID: ${bookId}`,
+				},
+			],
+		});
+	}
 
-  // Return the updated book document
-  return updatedBook;
+	// Return the updated book document
+	return updatedBook;
 };
 
 // ------------------------------------------------------
 // deleteBookService() — Deletes a specific book by ID
 // ------------------------------------------------------
 export const deleteBookService = async (
-  userId: string,
-  bookId: string
+	userId: string,
+	bookId: string,
 ): Promise<boolean> => {
-  // Convert bookId to ObjectId
-  const objectId = new Types.ObjectId(bookId);
+	// Convert bookId to ObjectId
+	const objectId = new Types.ObjectId(bookId);
 
-  // Retrieve the book by ID to ensure it exists
-  const book = await findBookById(objectId);
+	// Retrieve the book by ID to ensure it exists
+	const book = await findBookById(objectId);
 
-  // Check if book exists
-  if (!book) {
-    // Log error and throw APIError
-    logger.error(`Book not found for ID: ${bookId} in deleteBookService`, {
-      label: "BookService",
-    });
+	// Check if book exists
+	if (!book) {
+		// Log error and throw APIError
+		logger.error(`Book not found for ID: ${bookId} in deleteBookService`, {
+			label: "BookService",
+		});
 
-    //  Throw not found error
-    throw new APIError(404, "Book not found", {
-      type: "NOT_FOUND_ERROR",
-      details: [
-        {
-          field: "bookId",
-          message: `No book found with ID: ${bookId}`,
-        },
-      ],
-    });
-  }
+		//  Throw not found error
+		throw new APIError(404, "Book not found", {
+			type: "NOT_FOUND_ERROR",
+			details: [
+				{
+					field: "bookId",
+					message: `No book found with ID: ${bookId}`,
+				},
+			],
+		});
+	}
 
-  // Check if the user is authorized to delete the book
-  if (book.userId.toString() !== userId) {
-    // Log error and throw APIError
-    logger.error(`Unauthorized delete attempt for book ID: ${bookId}`, {
-      label: "BookService",
-    });
+	// Check if the user is authorized to delete the book
+	if (book.userId.toString() !== userId) {
+		// Log error and throw APIError
+		logger.error(`Unauthorized delete attempt for book ID: ${bookId}`, {
+			label: "BookService",
+		});
 
-    //  Throw authorization error
-    throw new APIError(403, "Unauthorized to delete this book", {
-      type: "AUTHORIZATION_ERROR",
-      details: [
-        {
-          field: "userId",
-          message: `User ID: ${userId} is not authorized to delete book with ID: ${bookId}`,
-        },
-      ],
-    });
-  }
+		//  Throw authorization error
+		throw new APIError(403, "Unauthorized to delete this book", {
+			type: "AUTHORIZATION_ERROR",
+			details: [
+				{
+					field: "userId",
+					message: `User ID: ${userId} is not authorized to delete book with ID: ${bookId}`,
+				},
+			],
+		});
+	}
 
-  // Delete the book
-  await deleteBookById(objectId);
+	// Delete the book
+	await deleteBookById(objectId);
 
-  // Return true indicating successful deletion
-  return true;
+	// Return true indicating successful deletion
+	return true;
 };
 
 // ------------------------------------------------------
 // updateBookCoverService() — Updates the cover image of a specific book by ID
 // ------------------------------------------------------
 export const updateBookCoverService = async (
-  userId: string,
-  bookId: string,
-  coverImageFile: Express.Multer.File
+	userId: string,
+	bookId: string,
+	coverImageFile: Express.Multer.File,
 ) => {
-  // Validate coverImageFile
-  if (!coverImageFile) {
-    // Log error and throw APIError
-    logger.error("Cover image file is missing in updateBookCoverService", {
-      label: "BookService",
-    });
+	// Validate coverImageFile
+	if (!coverImageFile) {
+		// Log error and throw APIError
+		logger.error("Cover image file is missing in updateBookCoverService", {
+			label: "BookService",
+		});
 
-    //  Throw validation error
-    throw new APIError(
-      400,
-      "Cover image file is required to update the book cover",
-      {
-        type: "VALIDATION_ERROR",
-        details: [
-          {
-            field: "coverImageFile",
-            message: "Cover image file cannot be null or undefined",
-          },
-        ],
-      }
-    );
-  }
+		//  Throw validation error
+		throw new APIError(
+			400,
+			"Cover image file is required to update the book cover",
+			{
+				type: "VALIDATION_ERROR",
+				details: [
+					{
+						field: "coverImageFile",
+						message: "Cover image file cannot be null or undefined",
+					},
+				],
+			},
+		);
+	}
 
-  // Convert bookId to ObjectId
-  const objectId = new Types.ObjectId(bookId);
+	// Convert bookId to ObjectId
+	const objectId = new Types.ObjectId(bookId);
 
-  // Retrieve the book by ID to ensure it exists
-  const book = await findBookById(objectId);
+	// Retrieve the book by ID to ensure it exists
+	const book = await findBookById(objectId);
 
-  // Check if book exists
-  if (!book) {
-    // Log error and throw APIError
-    logger.error(`Book not found for ID: ${bookId} in updateBookCoverService`, {
-      label: "BookService",
-    });
+	// Check if book exists
+	if (!book) {
+		// Log error and throw APIError
+		logger.error(`Book not found for ID: ${bookId} in updateBookCoverService`, {
+			label: "BookService",
+		});
 
-    //  Throw not found error
-    throw new APIError(404, "Book not found", {
-      type: "NOT_FOUND_ERROR",
-      details: [
-        {
-          field: "bookId",
-          message: `No book found with ID: ${bookId}`,
-        },
-      ],
-    });
-  }
+		//  Throw not found error
+		throw new APIError(404, "Book not found", {
+			type: "NOT_FOUND_ERROR",
+			details: [
+				{
+					field: "bookId",
+					message: `No book found with ID: ${bookId}`,
+				},
+			],
+		});
+	}
 
-  // Check if the user is authorized to update the book cover
-  if (book.userId.toString() !== userId) {
-    // Log error and throw APIError
-    logger.error(`Unauthorized access attempt for book ID: ${bookId}`, {
-      label: "BookService",
-    });
+	// Check if the user is authorized to update the book cover
+	if (book.userId.toString() !== userId) {
+		// Log error and throw APIError
+		logger.error(`Unauthorized access attempt for book ID: ${bookId}`, {
+			label: "BookService",
+		});
 
-    //  Throw authorization error
-    throw new APIError(403, "Unauthorized to access this book", {
-      type: "AUTHORIZATION_ERROR",
-      details: [
-        {
-          field: "userId",
-          message: `User ID: ${userId} is not authorized to access book with ID: ${bookId}`,
-        },
-      ],
-    });
-  }
+		//  Throw authorization error
+		throw new APIError(403, "Unauthorized to access this book", {
+			type: "AUTHORIZATION_ERROR",
+			details: [
+				{
+					field: "userId",
+					message: `User ID: ${userId} is not authorized to access book with ID: ${bookId}`,
+				},
+			],
+		});
+	}
 
-  // Upload the cover image to Cloudinary
-  const coverUrl = await uploadToCloudinary(coverImageFile.buffer, "books");
+	// Upload the cover image to Cloudinary
+	const coverUrl = await uploadToCloudinary(coverImageFile.buffer, "books");
 
-  // Update the book's cover image URL
-  const updatedBook = await updateBookCoverById(objectId, coverUrl);
+	// Update the book's cover image URL
+	const updatedBook = await updateBookCoverById(objectId, coverUrl);
 
-  // Return the updated book document
-  return updatedBook;
+	// Return the updated book document
+	return updatedBook;
 };

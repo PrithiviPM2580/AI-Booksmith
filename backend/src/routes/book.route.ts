@@ -1,30 +1,31 @@
 // ============================================================
 // 🧩 BookRoute — Handles book-related API routes
 // ============================================================
+
+import { Router } from "express";
 import {
-  createBookController,
-  deleteBookController,
-  getAllBooksController,
-  getBookController,
-  updateBookController,
-  updateBookCoverController,
+	createBookController,
+	deleteBookController,
+	getAllBooksController,
+	getBookController,
+	updateBookController,
+	updateBookCoverController,
 } from "@/controllers/book.controller.js";
 import asyncHandlerMiddleware from "@/middlewares/async-handler.middleware.js";
 import authenticateMiddleware from "@/middlewares/authenticate.middleware.js";
 import { uploadSingle } from "@/middlewares/multer.middleware.js";
 import {
-  limiters,
-  rateLimitingMiddleware,
+	limiters,
+	rateLimitingMiddleware,
 } from "@/middlewares/rate-limiting.middleware.js";
 import validateRequestMiddleware from "@/middlewares/validate-request.middleware.js";
 import {
-  createBookSchema,
-  deleteBookSchema,
-  getBookSchema,
-  updateBookSchema,
-  updateBookCoverSchema,
+	createBookSchema,
+	deleteBookSchema,
+	getBookSchema,
+	updateBookCoverSchema,
+	updateBookSchema,
 } from "@/validator/book.validator.js";
-import { Router } from "express";
 
 // Create a new router instance
 const router: Router = Router();
@@ -36,10 +37,10 @@ const router: Router = Router();
 // @route   POST /api/v1/books
 // @access  Private
 router.route("/").post(
-  authenticateMiddleware(["user"]), // Ensure the user is authenticated and has the "user" role
-  rateLimitingMiddleware(limiters.user, (req) => req.user?.userId as string), // Apply rate limiting based on user ID
-  validateRequestMiddleware(createBookSchema), // Validate the request body against the createBookSchema
-  asyncHandlerMiddleware(createBookController) // Handle the request asynchronously and catch errors
+	authenticateMiddleware(["user"]), // Ensure the user is authenticated and has the "user" role
+	rateLimitingMiddleware(limiters.user, (req) => req.user?.userId as string), // Apply rate limiting based on user ID
+	validateRequestMiddleware(createBookSchema), // Validate the request body against the createBookSchema
+	asyncHandlerMiddleware(createBookController), // Handle the request asynchronously and catch errors
 );
 
 // ------------------------------------------------------
@@ -49,9 +50,9 @@ router.route("/").post(
 // @route   GET /api/v1/books
 // @access  Private
 router.route("/").get(
-  authenticateMiddleware(["user"]), // Ensure the user is authenticated and has the "user" role
-  rateLimitingMiddleware(limiters.user, (req) => req.user?.userId as string), // Apply rate limiting based on user ID
-  asyncHandlerMiddleware(getAllBooksController) // Handle the request asynchronously and catch errors
+	authenticateMiddleware(["user"]), // Ensure the user is authenticated and has the "user" role
+	rateLimitingMiddleware(limiters.user, (req) => req.user?.userId as string), // Apply rate limiting based on user ID
+	asyncHandlerMiddleware(getAllBooksController), // Handle the request asynchronously and catch errors
 );
 
 // ------------------------------------------------------
@@ -61,10 +62,10 @@ router.route("/").get(
 // @route   GET /api/v1/books/:bookId
 // @access  Private
 router.route("/:bookId").get(
-  authenticateMiddleware(["user"]), // Ensure the user is authenticated and has the "user" role
-  rateLimitingMiddleware(limiters.user, (req) => req.user?.userId as string), // Apply rate limiting based on user ID
-  validateRequestMiddleware(getBookSchema), // Validate the request parameters against the getBookSchema
-  asyncHandlerMiddleware(getBookController) // Handle the request asynchronously and catch errors
+	authenticateMiddleware(["user"]), // Ensure the user is authenticated and has the "user" role
+	rateLimitingMiddleware(limiters.user, (req) => req.user?.userId as string), // Apply rate limiting based on user ID
+	validateRequestMiddleware(getBookSchema), // Validate the request parameters against the getBookSchema
+	asyncHandlerMiddleware(getBookController), // Handle the request asynchronously and catch errors
 );
 
 // ------------------------------------------------------
@@ -74,10 +75,10 @@ router.route("/:bookId").get(
 // @route   DELETE /api/v1/books/:bookId
 // @access  Private
 router.route("/:bookId").delete(
-  authenticateMiddleware(["user"]), // Ensure the user is authenticated and has the "user" role
-  rateLimitingMiddleware(limiters.user, (req) => req.user?.userId as string), // Apply rate limiting based on user ID
-  validateRequestMiddleware(deleteBookSchema), // Validate the request parameters against the deleteBookSchema
-  asyncHandlerMiddleware(deleteBookController) // Handle the request asynchronously and catch errors
+	authenticateMiddleware(["user"]), // Ensure the user is authenticated and has the "user" role
+	rateLimitingMiddleware(limiters.user, (req) => req.user?.userId as string), // Apply rate limiting based on user ID
+	validateRequestMiddleware(deleteBookSchema), // Validate the request parameters against the deleteBookSchema
+	asyncHandlerMiddleware(deleteBookController), // Handle the request asynchronously and catch errors
 );
 
 // ------------------------------------------------------
@@ -87,10 +88,10 @@ router.route("/:bookId").delete(
 // @route   PATCH /api/v1/books/:bookId
 // @access  Private
 router.route("/:bookId").patch(
-  authenticateMiddleware(["user"]),
-  rateLimitingMiddleware(limiters.user, (req) => req.user?.userId as string),
-  validateRequestMiddleware(updateBookSchema),
-  asyncHandlerMiddleware(updateBookController)
+	authenticateMiddleware(["user"]),
+	rateLimitingMiddleware(limiters.user, (req) => req.user?.userId as string),
+	validateRequestMiddleware(updateBookSchema),
+	asyncHandlerMiddleware(updateBookController),
 );
 
 // ------------------------------------------------------
@@ -100,11 +101,11 @@ router.route("/:bookId").patch(
 // @route   PUT /api/v1/books/cover/:bookId
 // @access  Private
 router.route("/cover/:bookId").put(
-  authenticateMiddleware(["user"]),
-  rateLimitingMiddleware(limiters.user, (req) => req.user?.userId as string),
-  uploadSingle("coverImage"),
-  validateRequestMiddleware(updateBookCoverSchema),
-  asyncHandlerMiddleware(updateBookCoverController)
+	authenticateMiddleware(["user"]),
+	rateLimitingMiddleware(limiters.user, (req) => req.user?.userId as string),
+	uploadSingle("coverImage"),
+	validateRequestMiddleware(updateBookCoverSchema),
+	asyncHandlerMiddleware(updateBookCoverController),
 );
 
 export default router;

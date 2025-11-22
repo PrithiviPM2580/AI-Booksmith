@@ -2,84 +2,84 @@
 // 🧩 BookDao — Data Access Object for book-related database operations
 // ============================================================
 
-import BookModel from "@/models/book.model.js";
-import { UpdateBookInput } from "@/validator/book.validator.js";
 import type { Types } from "mongoose";
+import BookModel from "@/models/book.model.js";
+import type { UpdateBookInput } from "@/validator/book.validator.js";
 
 // ------------------------------------------------------
 // createBook() — Creates a new book entry in the database
 // ------------------------------------------------------
 export const createBook = async ({
-  userId,
-  title,
-  subtitle,
-  author,
-  chapters,
+	userId,
+	title,
+	subtitle,
+	author,
+	chapters,
 }: CreateBook) => {
-  // Create and return the new book document
-  return await BookModel.create({
-    userId,
-    title,
-    subtitle,
-    author,
-    chapters,
-  });
+	// Create and return the new book document
+	return await BookModel.create({
+		userId,
+		title,
+		subtitle,
+		author,
+		chapters,
+	});
 };
 
 // ------------------------------------------------------
 // findAllBooksByUserId() — Retrieves all books for a given user ID
 // ------------------------------------------------------
 export const findAllBooksByUserId = async (userId: Types.ObjectId) => {
-  // Find and return all books associated with the specified user ID
-  return await BookModel.find({ userId }).lean().exec();
+	// Find and return all books associated with the specified user ID
+	return await BookModel.find({ userId }).lean().exec();
 };
 
 // ------------------------------------------------------
 // findBookById() — Retrieves a specific book by its ID
 // ------------------------------------------------------
 export const findBookById = async (bookId: Types.ObjectId) => {
-  // Find and return the book document with the specified ID
-  return await BookModel.findById(bookId).lean().exec();
+	// Find and return the book document with the specified ID
+	return await BookModel.findById(bookId).lean().exec();
 };
 
 // ------------------------------------------------------
 // updateBookById() — Updates a specific book by its ID
 // ------------------------------------------------------
 export const updateBookById = async (
-  bookId: Types.ObjectId,
-  updateData: UpdateBookInput
+	bookId: Types.ObjectId,
+	updateData: UpdateBookInput,
 ) => {
-  // Find the book by ID and update it with the provided data
-  return await BookModel.findByIdAndUpdate(
-    bookId,
-    { $set: updateData },
-    { new: true }
-  )
-    .lean()
-    .exec();
+	// Find the book by ID and update it with the provided data
+	return await BookModel.findByIdAndUpdate(
+		bookId,
+		{ $set: updateData },
+		{ new: true },
+	)
+		.lean()
+		.exec();
 };
 
 // ------------------------------------------------------
 // deleteBookById() — Deletes a specific book by its ID
 // ------------------------------------------------------
 export const deleteBookById = async (bookId: Types.ObjectId) => {
-  // Find the book by ID and delete it
-  return await BookModel.findByIdAndDelete(bookId).exec();
+	// Find the book by ID and delete it
+	return await BookModel.findByIdAndDelete(bookId).exec();
 };
 
 // ------------------------------------------------------
 // updateBookCoverById() — Updates the cover image URL of a specific book by its ID
 // ------------------------------------------------------
 export const updateBookCoverById = async (
-  bookId: Types.ObjectId,
-  coverImageUrl: string
+	bookId: Types.ObjectId,
+	coverImageUrl: string,
 ) => {
-  // Find the book by ID and update its cover image URL
-  return await BookModel.findByIdAndUpdate(
-    bookId,
-    { $set: { coverImageUrl } },
-    { new: true }
-  )
-    .lean()
-    .exec();
+	// Find the book by ID and update its cover image URL
+	return await BookModel.findByIdAndUpdate(
+		bookId,
+		{ $set: { coverImageUrl } },
+		{ new: true },
+	)
+		.lean()
+		.exec();
 };
