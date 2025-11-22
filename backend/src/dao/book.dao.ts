@@ -32,3 +32,11 @@ export const findAllBooksByUserId = async (userId: Types.ObjectId) => {
   // Find and return all books associated with the specified user ID
   return await BookModel.find({ userId }).lean().exec();
 };
+
+// ------------------------------------------------------
+// findBookById() — Retrieves a specific book by its ID
+// ------------------------------------------------------
+export const findBookById = async (bookId: Types.ObjectId) => {
+  // Find and return the book document with the specified ID
+  return await BookModel.findById(bookId).lean().exec();
+};

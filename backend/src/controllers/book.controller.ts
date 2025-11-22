@@ -8,6 +8,7 @@ import type { Request, Response, NextFunction } from "express";
 import {
   createBookService,
   getAllBooksService,
+  getBookService,
 } from "@/services/book.service.js";
 import { successResponse } from "@/utils/index.util.js";
 
@@ -138,4 +139,43 @@ export const getAllBooksController = async (
 
   // Send success response with retrieved books data
   successResponse(res, 200, "Books retrieved successfully", books);
+};
+
+// ------------------------------------------------------
+// getBookController() — Retrieves a specific book by ID
+// ------------------------------------------------------
+export const getBookController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  const bookId = req.params.bookId as string;
+
+  // Validate bookId
+  if (!bookId) {
+    // Log error and return bad request response
+    logger.error("Book ID is missing in request", {
+      label: "BookController",
+    });
+    return next(
+      new APIError(400, "Book ID is required to fetch the book", {
+        type: "VALIDATION_ERROR",
+        details: [
+          {
+            field: "bookId",
+            message: "Book ID cannot be null or undefined",
+          },
+        ],
+      })
+    );
+  }
+
+  const book = await getBookService(bookId);
+
+  logger.info(`Book retrieved successfully with ID: ${bookId}`, {
+    label: "BookController",
+  });
+
+  // Send success response with retrieved book data
+  successResponse(res, 200, "Book retrieved successfully", book);
 };

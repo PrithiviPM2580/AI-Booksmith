@@ -28,6 +28,16 @@ export const createBookSchema = {
 };
 
 // ------------------------------------------------------
+// getBookSchema{} — Validates parameters for getting a book
+// ------------------------------------------------------
+export const getBookSchema = {
+  params: z.object({
+    bookId: z.string("Book ID must be a string").min(1, "Book ID is required"),
+  }),
+};
+
+// ------------------------------------------------------
 // Define the type defination of the schemas
 // ------------------------------------------------------
 export type CreateBookInput = z.infer<typeof createBookSchema.body>;
+export type GetBookParams = z.infer<typeof getBookSchema.params>;
