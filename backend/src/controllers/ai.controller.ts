@@ -2,8 +2,14 @@
 // 🧩 AIController — Handles AI-related operations
 // ============================================================
 import type { Request, Response, NextFunction } from "express";
-import { GenerateOutlineInput } from "@/validator/ai.validator.js";
-import { generateOutlineService } from "@/services/ai.service.js";
+import {
+  GenerateChapterContentInput,
+  GenerateOutlineInput,
+} from "@/validator/ai.validator.js";
+import {
+  generateOutlineService,
+  generateChapterContentService,
+} from "@/services/ai.service.js";
 import logger from "@/lib/logger.lib.js";
 import APIError from "@/lib/api-error.lib.js";
 import { successResponse } from "@/utils/index.util.js";
@@ -48,5 +54,50 @@ export const generateOutlineController = async (
   // Send success response with the generated outline
   successResponse(res, 200, "Outline generated successfully", {
     outline: generatedOutline,
+  });
+};
+
+// ------------------------------------------------------
+// generateChapterContentController() — Generates chapter content
+// ------------------------------------------------------
+export const generateChapterContentController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  // Call the service to generate chapter content
+  const response = await generateChapterContentService(
+    req.body as GenerateChapterContentInput
+  );
+
+  // Handle failure to generate chapter content
+  if (!response) {
+    // Log error and pass APIError to next middleware
+    logger.error("Chapter content generation failed", {
+      label: "AIController",
+    });
+
+    // Pass APIError to next middleware
+    return next(
+      new APIError(500, "Chapter content generation failed", {
+        type: "GenerationError",
+        details: [
+          {
+            field: "chapterContent",
+            message: "Failed to generate chapter content",
+          },
+        ],
+      })
+    );
+  }
+
+  // Log success message
+  logger.info("Chapter content generated successfully", {
+    label: "AIController",
+  });
+
+  // Send success response with the generated chapter content
+  successResponse(res, 200, "Chapter content generated successfully", {
+    chapterContent: response,
   });
 };

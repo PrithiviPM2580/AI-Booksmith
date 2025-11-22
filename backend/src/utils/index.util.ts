@@ -132,13 +132,16 @@ export const uploadToCloudinary = async (
 // ------------------------------------------------------
 // generateAIContent() — Generates AI content based on input
 // ------------------------------------------------------
-export const generateAIContent = async (prompt: string) => {
+export const generateAIContent = async (
+  prompt: string,
+  formatType: FormatType
+) => {
   // Generate content using the AI model and return the result
   const result = await ai.models.generateContent({
     model: "gemini-2.5-flash", // Specify the AI model to use
     contents: prompt, // Provide the prompt for content generation
     config: {
-      responseMimeType: "application/json", // Expect JSON response
+      responseMimeType: formatType, // Expect JSON response
     },
   });
 
