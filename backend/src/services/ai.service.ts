@@ -5,39 +5,39 @@
 import APIError from "@/lib/api-error.lib.js";
 import logger from "@/lib/logger.lib.js";
 import { generateAIContent } from "@/utils/index.util.js";
-import {
-  GenerateChapterContentInput,
-  GenerateOutlineInput,
+import type {
+	GenerateChapterContentInput,
+	GenerateOutlineInput,
 } from "@/validator/ai.validator.js";
 
 // ------------------------------------------------------
 // generateOutlineService() — Generates an outline based on input
 // ------------------------------------------------------
 export const generateOutlineService = async (input: GenerateOutlineInput) => {
-  // Destructure input parameters
-  const { topic, style, numChapters, description } = input;
+	// Destructure input parameters
+	const { topic, style, numChapters, description } = input;
 
-  // Validate required input
-  if (!topic) {
-    // Log error and throw APIError for missing topic
-    logger.error("Topic is required for generating an outline", {
-      label: "AIService",
-    });
+	// Validate required input
+	if (!topic) {
+		// Log error and throw APIError for missing topic
+		logger.error("Topic is required for generating an outline", {
+			label: "AIService",
+		});
 
-    //  Throw APIError for missing topic
-    throw new APIError(400, "Topic is required for generating an outline", {
-      type: "InvalidInput",
-      details: [
-        {
-          field: "topic",
-          message: "Topic cannot be empty",
-        },
-      ],
-    });
-  }
+		//  Throw APIError for missing topic
+		throw new APIError(400, "Topic is required for generating an outline", {
+			type: "InvalidInput",
+			details: [
+				{
+					field: "topic",
+					message: "Topic cannot be empty",
+				},
+			],
+		});
+	}
 
-  // Construct prompt for AI model
-  const prompt = `You are an expert book outline generator. Create a comphrehensive book outline based on the following requirements:
+	// Construct prompt for AI model
+	const prompt = `You are an expert book outline generator. Create a comphrehensive book outline based on the following requirements:
     Topic: ${topic}
     ${description ? `Description: ${description}` : ""}
     Writing Style: ${style}
@@ -68,89 +68,89 @@ export const generateOutlineService = async (input: GenerateOutlineInput) => {
     Generate the outline now.
  `;
 
-  // Call the AI content generation utility
-  const text = await generateAIContent(prompt, "application/json");
+	// Call the AI content generation utility
+	const text = await generateAIContent(prompt, "application/json");
 
-  // Handle cases where AI does not return any content
-  if (!text) {
-    // Log error and throw APIError for missing AI response
-    logger.error("No response from AI for outline generation", {
-      label: "AIService",
-    });
+	// Handle cases where AI does not return any content
+	if (!text) {
+		// Log error and throw APIError for missing AI response
+		logger.error("No response from AI for outline generation", {
+			label: "AIService",
+		});
 
-    // Throw APIError for missing AI response
-    throw new APIError(500, "No response from AI for outline generation", {
-      type: "AIResponseError",
-      details: [
-        {
-          field: "aiResponse",
-          message: "AI did not return any content",
-        },
-      ],
-    });
-  }
+		// Throw APIError for missing AI response
+		throw new APIError(500, "No response from AI for outline generation", {
+			type: "AIResponseError",
+			details: [
+				{
+					field: "aiResponse",
+					message: "AI did not return any content",
+				},
+			],
+		});
+	}
 
-  // Parse the AI response to extract the outline
-  let outline;
-  try {
-    // Attempt to parse the AI response as JSON
-    outline = JSON.parse(text);
-  } catch (error) {
-    // Log error and throw APIError for parsing failure
-    logger.error("Failed to parse outline from AI response", {
-      label: "AIService",
-      error,
-    });
-    // Throw APIError for parsing failure
-    throw new APIError(500, "Failed to parse outline from AI response", {
-      type: "AIResponseError",
-      details: [
-        {
-          field: "aiResponse",
-          message: "Outline format is incorrect",
-        },
-      ],
-    });
-  }
+	// Parse the AI response to extract the outline
+	let outline: { title: string; description: string }[];
+	try {
+		// Attempt to parse the AI response as JSON
+		outline = JSON.parse(text);
+	} catch (error) {
+		// Log error and throw APIError for parsing failure
+		logger.error("Failed to parse outline from AI response", {
+			label: "AIService",
+			error,
+		});
+		// Throw APIError for parsing failure
+		throw new APIError(500, "Failed to parse outline from AI response", {
+			type: "AIResponseError",
+			details: [
+				{
+					field: "aiResponse",
+					message: "Outline format is incorrect",
+				},
+			],
+		});
+	}
 
-  // Return the generated outline
-  return outline;
+	// Return the generated outline
+	return outline;
 };
 
 // ------------------------------------------------------
 // generateChapterContentService() — Generates chapter content
 // ------------------------------------------------------
 export const generateChapterContentService = async (
-  chapterContent: GenerateChapterContentInput
+	chapterContent: GenerateChapterContentInput,
 ) => {
-  // Destructure input parameters
-  const { chapterTitle, chapterDescription, style } = chapterContent;
+	// Destructure input parameters
+	const { chapterTitle, chapterDescription, style } = chapterContent;
 
-  // Validate required input
-  if (!chapterTitle) {
-    // Log error and throw APIError for missing chapter title
-    logger.error("Chapter title is required for generating chapter content", {
-      label: "AIService",
-    });
+	// Validate required input
+	if (!chapterTitle) {
+		// Log error and throw APIError for missing chapter title
+		logger.error("Chapter title is required for generating chapter content", {
+			label: "AIService",
+		});
 
-    // Throw APIError for missing chapter title
-    throw new APIError(
-      400,
-      "Chapter title is required for generating chapter content",
-      {
-        type: "InvalidInput",
-        details: [
-          {
-            field: "chapterTitle",
-            message: "Chapter title cannot be empty",
-          },
-        ],
-      }
-    );
-  }
+		// Throw APIError for missing chapter title
+		throw new APIError(
+			400,
+			"Chapter title is required for generating chapter content",
+			{
+				type: "InvalidInput",
+				details: [
+					{
+						field: "chapterTitle",
+						message: "Chapter title cannot be empty",
+					},
+				],
+			},
+		);
+	}
 
-  // Construct prompt for AI model
-  const prompt = `You are an expert writer specilizing in ${style} content. Write a complete chapter for a book with the followinf specifications:
+	// Construct prompt for AI model
+	const prompt = `You are an expert writer specilizing in ${style} content. Write a complete chapter for a book with the followinf specifications:
      Chapter Title: ${chapterTitle}
      ${chapterDescription ? `Chapter Description: ${chapterDescription}` : ""}
      Writing Style: ${style}
@@ -163,10 +163,10 @@ export const generateChapterContentService = async (
      4. Ensure the content flows logically from introduction to conclusion.
      5. Make the content engaging and informative for the reader.
      ${
-       chapterDescription
-         ? "6. Cover all points mentioned in the chapter description."
-         : ""
-     }
+				chapterDescription
+					? "6. Cover all points mentioned in the chapter description."
+					: ""
+			}
   
      Format Guidelines:
      - Start with compelling opening paragraph.
@@ -178,32 +178,32 @@ export const generateChapterContentService = async (
      Begin writing the chapter now.
   `;
 
-  // Call the AI content generation utility
-  const content = await generateAIContent(prompt, "text/plain");
+	// Call the AI content generation utility
+	const content = await generateAIContent(prompt, "text/plain");
 
-  // Handle cases where AI does not return any content
-  if (!content) {
-    // Log error and throw APIError for missing AI response
-    logger.error("No response from AI for chapter content generation", {
-      label: "AIService",
-    });
+	// Handle cases where AI does not return any content
+	if (!content) {
+		// Log error and throw APIError for missing AI response
+		logger.error("No response from AI for chapter content generation", {
+			label: "AIService",
+		});
 
-    // Throw APIError for missing AI response
-    throw new APIError(
-      500,
-      "No response from AI for chapter content generation",
-      {
-        type: "AIResponseError",
-        details: [
-          {
-            field: "aiResponse",
-            message: "AI did not return any content",
-          },
-        ],
-      }
-    );
-  }
+		// Throw APIError for missing AI response
+		throw new APIError(
+			500,
+			"No response from AI for chapter content generation",
+			{
+				type: "AIResponseError",
+				details: [
+					{
+						field: "aiResponse",
+						message: "AI did not return any content",
+					},
+				],
+			},
+		);
+	}
 
-  // Return the generated chapter content
-  return content;
+	// Return the generated chapter content
+	return content;
 };

@@ -1,22 +1,23 @@
 // ============================================================
 // 🧩 AIRoute — AI-related API routes
 // ============================================================
+
+import { Router } from "express";
 import {
-  generateChapterContentController,
-  generateOutlineController,
+	generateChapterContentController,
+	generateOutlineController,
 } from "@/controllers/ai.controller.js";
 import asyncHandlerMiddleware from "@/middlewares/async-handler.middleware.js";
 import authenticateMiddleware from "@/middlewares/authenticate.middleware.js";
 import {
-  limiters,
-  rateLimitingMiddleware,
+	limiters,
+	rateLimitingMiddleware,
 } from "@/middlewares/rate-limiting.middleware.js";
 import validateRequestMiddleware from "@/middlewares/validate-request.middleware.js";
 import {
-  generateChapterContentSchema,
-  generateOutlineSchema,
+	generateChapterContentSchema,
+	generateOutlineSchema,
 } from "@/validator/ai.validator.js";
-import { Router } from "express";
 
 // Initialize router
 const router: Router = Router();
@@ -28,10 +29,10 @@ const router: Router = Router();
 // @route   POST /api/v1/ai/generate-outline
 // @access  Private
 router.route("/generate-outline").post(
-  authenticateMiddleware(["user"]),
-  rateLimitingMiddleware(limiters.user, (req) => req.user?.userId as string),
-  validateRequestMiddleware(generateOutlineSchema),
-  asyncHandlerMiddleware(generateOutlineController)
+	authenticateMiddleware(["user"]),
+	rateLimitingMiddleware(limiters.user, (req) => req.user?.userId as string),
+	validateRequestMiddleware(generateOutlineSchema),
+	asyncHandlerMiddleware(generateOutlineController),
 );
 
 // ------------------------------------------------------
@@ -41,10 +42,10 @@ router.route("/generate-outline").post(
 // @route   POST /api/v1/ai/generate-chapter-content
 // @access  Private
 router.route("/generate-chapter-content").post(
-  authenticateMiddleware(["user"]),
-  rateLimitingMiddleware(limiters.user, (req) => req.user?.userId as string),
-  validateRequestMiddleware(generateChapterContentSchema),
-  asyncHandlerMiddleware(generateChapterContentController)
+	authenticateMiddleware(["user"]),
+	rateLimitingMiddleware(limiters.user, (req) => req.user?.userId as string),
+	validateRequestMiddleware(generateChapterContentSchema),
+	asyncHandlerMiddleware(generateChapterContentController),
 );
 
 export default router;
