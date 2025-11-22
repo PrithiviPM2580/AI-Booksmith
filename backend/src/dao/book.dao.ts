@@ -3,6 +3,7 @@
 // ============================================================
 
 import BookModel from "@/models/book.model.js";
+import type { Types } from "mongoose";
 
 // ------------------------------------------------------
 // createBook() — Creates a new book entry in the database
@@ -22,4 +23,12 @@ export const createBook = async ({
     author,
     chapters,
   });
+};
+
+// ------------------------------------------------------
+// findAllBooksByUserId() — Retrieves all books for a given user ID
+// ------------------------------------------------------
+export const findAllBooksByUserId = async (userId: Types.ObjectId) => {
+  // Find and return all books associated with the specified user ID
+  return await BookModel.find({ userId }).lean().exec();
 };

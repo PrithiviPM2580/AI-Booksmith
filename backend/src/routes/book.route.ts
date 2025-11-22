@@ -1,7 +1,10 @@
 // ============================================================
 // 🧩 BookRoute — Handles book-related API routes
 // ============================================================
-import { createBookController } from "@/controllers/book.controller.js";
+import {
+  createBookController,
+  getAllBooksController,
+} from "@/controllers/book.controller.js";
 import asyncHandlerMiddleware from "@/middlewares/async-handler.middleware.js";
 import authenticateMiddleware from "@/middlewares/authenticate.middleware.js";
 import {
@@ -29,12 +32,16 @@ router.route("/").post(
 );
 
 // ------------------------------------------------------
-// GetAllBook Route
+// GetAllBooks Route
 // ------------------------------------------------------
 // @desc    Get all books
 // @route   GET /api/v1/books
 // @access  Private
-router.route("/").get();
+router.route("/").get(
+  authenticateMiddleware(["user"]), // Ensure the user is authenticated and has the "user" role
+  rateLimitingMiddleware(limiters.user, (req) => req.user?.userId as string), // Apply rate limiting based on user ID
+  asyncHandlerMiddleware(getAllBooksController) // Handle the request asynchronously and catch errors
+);
 
 // ------------------------------------------------------
 // GetBook Route
