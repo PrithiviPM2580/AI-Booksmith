@@ -1,6 +1,15 @@
 // ============================================================
 // 🧩 BookRoute — Handles book-related API routes
 // ============================================================
+import { createBookController } from "@/controllers/book.controller.js";
+import asyncHandlerMiddleware from "@/middlewares/async-handler.middleware.js";
+import authenticateMiddleware from "@/middlewares/authenticate.middleware.js";
+import {
+  limiters,
+  rateLimitingMiddleware,
+} from "@/middlewares/rate-limiting.middleware.js";
+import validateRequestMiddleware from "@/middlewares/validate-request.middleware.js";
+import { createBookSchema } from "@/validator/book.validator.js";
 import { Router } from "express";
 
 // Create a new router instance
@@ -12,7 +21,12 @@ const router: Router = Router();
 // @desc    Create a new book
 // @route   POST /api/v1/books
 // @access  Private
-router.route("/").post();
+router.route("/").post(
+  authenticateMiddleware(["user"]), // Ensure the user is authenticated and has the "user" role
+  rateLimitingMiddleware(limiters.user, (req) => req.user?.userId as string), // Apply rate limiting based on user ID
+  validateRequestMiddleware(createBookSchema), // Validate the request body against the createBookSchema
+  asyncHandlerMiddleware(createBookController) // Handle the request asynchronously and catch errors
+);
 
 // ------------------------------------------------------
 // GetAllBook Route

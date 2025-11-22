@@ -2,6 +2,7 @@
 // 🧩 Types — Type definitions
 // ============================================================
 
+import { BookDocument } from "@/models/book.model.ts";
 import { TokenDocument } from "@/models/token.model.ts";
 import { UserDocument } from "@/models/user.model.ts";
 import type { Request, Response } from "express";
@@ -10,47 +11,52 @@ import type { Request, Response } from "express";
 // Global{} — Extend the global namespace
 // ------------------------------------------------------
 declare global {
-	type APIErrorDetail = {
-		field?: string;
-		message?: string;
-	};
+  type APIErrorDetail = {
+    field?: string;
+    message?: string;
+  };
 
-	type APIErrorInfo = {
-		type: string;
-		details?: ErrorDetail[];
-	};
+  type APIErrorInfo = {
+    type: string;
+    details?: ErrorDetail[];
+  };
 
-	type APIErrorType = string | ErrorInfo;
+  type APIErrorType = string | ErrorInfo;
 
-	interface LogOptions {
-		req: Request;
-		res?: Response;
-		message?: string;
-		data?: unknown;
-		error?: unknown;
-		label?: string;
-	}
+  interface LogOptions {
+    req: Request;
+    res?: Response;
+    message?: string;
+    data?: unknown;
+    error?: unknown;
+    label?: string;
+  }
 
-	type RequestValidate = {
-		body?: ZodTypeAny;
-		query?: ZodTypeAny;
-		params?: ZodTypeAny;
-	};
+  type RequestValidate = {
+    body?: ZodTypeAny;
+    query?: ZodTypeAny;
+    params?: ZodTypeAny;
+  };
 
-	type Role = "user";
+  type Role = "user";
 
-	type TokenPayload = {
-		userId: Types.ObjectId;
-		role: "user";
-	};
+  type TokenPayload = {
+    userId: Types.ObjectId;
+    role: "user";
+  };
 
-	type CreateUser = Pick<
-		UserDocument,
-		"_id" | "name" | "email" | "password" | "role"
-	>;
+  type CreateUser = Pick<
+    UserDocument,
+    "_id" | "name" | "email" | "password" | "role"
+  >;
 
-	type CreateToken = Pick<
-		TokenDocument,
-		"_id" | "userId" | "token" | "userAgent" | "ipAddress" | "expiresAt"
-	>;
+  type CreateToken = Pick<
+    TokenDocument,
+    "_id" | "userId" | "token" | "userAgent" | "ipAddress" | "expiresAt"
+  >;
+
+  type CreateBook = Pick<
+    BookDocument,
+    "userId" | "title" | "subtitle" | "author" | "chapters"
+  >;
 }
