@@ -12,6 +12,7 @@ import {
   findAllBooksByUserId,
   findBookById,
   updateBookById,
+  deleteBookById,
 } from "@/dao/book.dao.js";
 import { Types } from "mongoose";
 
@@ -276,4 +277,60 @@ export const updateBookService = async (
 
   // Return the updated book document
   return updatedBook;
+};
+
+// ------------------------------------------------------
+// deleteBookService() — Deletes a specific book by ID
+// ------------------------------------------------------
+export const deleteBookService = async (
+  userId: string,
+  bookId: string
+): Promise<boolean> => {
+  // Convert bookId to ObjectId
+  const objectId = new Types.ObjectId(bookId);
+
+  // Retrieve the book by ID to ensure it exists
+  const book = await findBookById(objectId);
+
+  // Check if book exists
+  if (!book) {
+    // Log error and throw APIError
+    logger.error(`Book not found for ID: ${bookId} in deleteBookService`, {
+      label: "BookService",
+    });
+
+    //  Throw not found error
+    throw new APIError(404, "Book not found", {
+      type: "NOT_FOUND_ERROR",
+      details: [
+        {
+          field: "bookId",
+          message: `No book found with ID: ${bookId}`,
+        },
+      ],
+    });
+  }
+
+  // Check if the user is authorized to delete the book
+  if (book.userId.toString() !== userId) {
+    // Log error and throw APIError
+    logger.error(`Unauthorized delete attempt for book ID: ${bookId}`, {
+      label: "BookService",
+    });
+
+    //  Throw authorization error
+    throw new APIError(403, "Unauthorized to delete this book", {
+      type: "AUTHORIZATION_ERROR",
+      details: [
+        {
+          field: "userId",
+          message: `User ID: ${userId} is not authorized to delete book with ID: ${bookId}`,
+        },
+      ],
+    });
+  }
+
+  await deleteBookById(objectId);
+
+  return true;
 };

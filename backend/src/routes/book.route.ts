@@ -3,6 +3,7 @@
 // ============================================================
 import {
   createBookController,
+  deleteBookController,
   getAllBooksController,
   getBookController,
   updateBookController,
@@ -16,6 +17,7 @@ import {
 import validateRequestMiddleware from "@/middlewares/validate-request.middleware.js";
 import {
   createBookSchema,
+  deleteBookSchema,
   getBookSchema,
   updateBookSchema,
 } from "@/validator/book.validator.js";
@@ -68,7 +70,12 @@ router.route("/:bookId").get(
 // @desc    Delete a book
 // @route   DELETE /api/v1/books/:bookId
 // @access  Private
-router.route("/:bookId").delete();
+router.route("/:bookId").delete(
+  authenticateMiddleware(["user"]), // Ensure the user is authenticated and has the "user" role
+  rateLimitingMiddleware(limiters.user, (req) => req.user?.userId as string), // Apply rate limiting based on user ID
+  validateRequestMiddleware(deleteBookSchema), // Validate the request parameters against the deleteBookSchema
+  asyncHandlerMiddleware(deleteBookController) // Handle the request asynchronously and catch errors
+);
 
 // ------------------------------------------------------
 // UpdateBook Route

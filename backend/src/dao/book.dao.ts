@@ -58,3 +58,11 @@ export const updateBookById = async (
     .lean()
     .exec();
 };
+
+// ------------------------------------------------------
+// deleteBookById() — Deletes a specific book by its ID
+// ------------------------------------------------------
+export const deleteBookById = async (bookId: Types.ObjectId) => {
+  // Find the book by ID and delete it
+  return await BookModel.findByIdAndDelete(bookId).exec();
+};
