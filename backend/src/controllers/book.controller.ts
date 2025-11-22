@@ -3,12 +3,18 @@
 // ============================================================
 import APIError from "@/lib/api-error.lib.js";
 import logger from "@/lib/logger.lib.js";
-import { CreateBookInput } from "@/validator/book.validator.js";
+import {
+  CreateBookInput,
+  GetBookParams,
+  UpdateBookInput,
+  UpdateBookParams,
+} from "@/validator/book.validator.js";
 import type { Request, Response, NextFunction } from "express";
 import {
   createBookService,
   getAllBooksService,
   getBookService,
+  updateBookService,
 } from "@/services/book.service.js";
 import { successResponse } from "@/utils/index.util.js";
 
@@ -149,7 +155,11 @@ export const getBookController = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  const bookId = req.params.bookId as string;
+  // Extract bookId from request parameters
+  const bookId = req.params.bookId as GetBookParams["bookId"];
+
+  // Extract userId from request
+  const userId = req.user?.userId as string;
 
   // Validate bookId
   if (!bookId) {
@@ -157,6 +167,8 @@ export const getBookController = async (
     logger.error("Book ID is missing in request", {
       label: "BookController",
     });
+
+    //  Return bad request error
     return next(
       new APIError(400, "Book ID is required to fetch the book", {
         type: "VALIDATION_ERROR",
@@ -170,12 +182,96 @@ export const getBookController = async (
     );
   }
 
-  const book = await getBookService(bookId);
+  // Validate userId
+  if (!userId) {
+    // Log error and return unauthorized response
+    logger.error("User ID is missing in request", {
+      label: "BookController",
+    });
 
+    //  Return unauthorized error
+    return next(
+      new APIError(401, "Unauthorized access - User not authenticated", {
+        type: "AUTHENTICATION_ERROR",
+        details: [
+          {
+            field: "userId",
+            message: "User ID is required to get a book",
+          },
+        ],
+      })
+    );
+  }
+
+  // Retrieve the book using the service
+  const book = await getBookService(bookId, userId);
+
+  // Check if book was found
   logger.info(`Book retrieved successfully with ID: ${bookId}`, {
     label: "BookController",
   });
 
   // Send success response with retrieved book data
   successResponse(res, 200, "Book retrieved successfully", book);
+};
+
+// ------------------------------------------------------
+// updateBookController() —
+// ------------------------------------------------------
+export const updateBookController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  const bookId = req.params.bookId as UpdateBookParams["bookId"];
+
+  const userId = req.user?.userId as string;
+
+  if (!userId) {
+    logger.error("User ID is missing in request", {
+      label: "BookController",
+    });
+
+    return next(
+      new APIError(401, "Unauthorized access - User not authenticated", {
+        type: "AUTHENTICATION_ERROR",
+        details: [
+          {
+            field: "userId",
+            message: "User ID is required to update a book",
+          },
+        ],
+      })
+    );
+  }
+
+  if (!bookId) {
+    logger.error("Book ID is missing in request", {
+      label: "BookController",
+    });
+
+    return next(
+      new APIError(400, "Book ID is required to update the book", {
+        type: "VALIDATION_ERROR",
+        details: [
+          {
+            field: "bookId",
+            message: "Book ID cannot be null or undefined",
+          },
+        ],
+      })
+    );
+  }
+
+  const updateBook = await updateBookService(
+    userId,
+    bookId,
+    req.body as UpdateBookInput
+  );
+
+  logger.info(`Book updated successfully with ID: ${bookId}`, {
+    label: "BookController",
+  });
+
+  successResponse(res, 200, "Book updated successfully", updateBook);
 };

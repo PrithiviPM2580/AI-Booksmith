@@ -5,6 +5,7 @@ import {
   createBookController,
   getAllBooksController,
   getBookController,
+  updateBookController,
 } from "@/controllers/book.controller.js";
 import asyncHandlerMiddleware from "@/middlewares/async-handler.middleware.js";
 import authenticateMiddleware from "@/middlewares/authenticate.middleware.js";
@@ -13,7 +14,11 @@ import {
   rateLimitingMiddleware,
 } from "@/middlewares/rate-limiting.middleware.js";
 import validateRequestMiddleware from "@/middlewares/validate-request.middleware.js";
-import { createBookSchema, getBookSchema } from "@/validator/book.validator.js";
+import {
+  createBookSchema,
+  getBookSchema,
+  updateBookSchema,
+} from "@/validator/book.validator.js";
 import { Router } from "express";
 
 // Create a new router instance
@@ -71,7 +76,12 @@ router.route("/:bookId").delete();
 // @desc    Update a book
 // @route   PATCH /api/v1/books/:bookId
 // @access  Private
-router.route("/:bookId").patch();
+router.route("/:bookId").patch(
+  authenticateMiddleware(["user"]),
+  rateLimitingMiddleware(limiters.user, (req) => req.user?.userId as string),
+  validateRequestMiddleware(updateBookSchema),
+  asyncHandlerMiddleware(updateBookController)
+);
 
 // ------------------------------------------------------
 // UpdateBookCover Route

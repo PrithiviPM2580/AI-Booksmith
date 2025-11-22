@@ -3,6 +3,7 @@
 // ============================================================
 
 import BookModel from "@/models/book.model.js";
+import { UpdateBookInput } from "@/validator/book.validator.js";
 import type { Types } from "mongoose";
 
 // ------------------------------------------------------
@@ -39,4 +40,21 @@ export const findAllBooksByUserId = async (userId: Types.ObjectId) => {
 export const findBookById = async (bookId: Types.ObjectId) => {
   // Find and return the book document with the specified ID
   return await BookModel.findById(bookId).lean().exec();
+};
+
+// ------------------------------------------------------
+// updateBookById() — Updates a specific book by its ID
+// ------------------------------------------------------
+export const updateBookById = async (
+  bookId: Types.ObjectId,
+  updateData: UpdateBookInput
+) => {
+  // Find the book by ID and update it with the provided data
+  return await BookModel.findByIdAndUpdate(
+    bookId,
+    { $set: updateData },
+    { new: true }
+  )
+    .lean()
+    .exec();
 };

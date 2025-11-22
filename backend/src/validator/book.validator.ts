@@ -37,7 +37,44 @@ export const getBookSchema = {
 };
 
 // ------------------------------------------------------
+// updateBookSchema{} — Validation schema for updating a book
+// ------------------------------------------------------
+export const updateBookSchema = {
+  body: z.object({
+    title: z
+      .string("Title must be a string")
+      .min(1, "Title is required")
+      .optional(),
+    subtitle: z.string("Subtitle must be a string").optional(),
+    author: z
+      .string("Author must be a string")
+      .min(1, "Author is required")
+      .optional(),
+    coverImageUrl: z.string("Cover Image URL must be a string").optional(),
+    status: z.enum(["draft", "published"]).default("draft").optional(),
+    chapters: z
+      .array(
+        z.object({
+          title: z
+            .string("Chapter title must be a string")
+            .min(1, "Chapter title is required"),
+          description: z
+            .string("Chapter description must be a string")
+            .optional(),
+          content: z.string("Chapter content must be a string").optional(),
+        })
+      )
+      .optional(),
+  }),
+  params: z.object({
+    bookId: z.string("Book ID must be a string").min(1, "Book ID is required"),
+  }),
+};
+
+// ------------------------------------------------------
 // Define the type defination of the schemas
 // ------------------------------------------------------
 export type CreateBookInput = z.infer<typeof createBookSchema.body>;
 export type GetBookParams = z.infer<typeof getBookSchema.params>;
+export type UpdateBookInput = z.infer<typeof updateBookSchema.body>;
+export type UpdateBookParams = z.infer<typeof updateBookSchema.params>;
