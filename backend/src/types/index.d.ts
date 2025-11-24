@@ -11,73 +11,73 @@ import type { Request, Response } from "express";
 // Global{} — Extend the global namespace
 // ------------------------------------------------------
 declare global {
-  type APIErrorDetail = {
-    field?: string;
-    message?: string;
-  };
+	type APIErrorDetail = {
+		field?: string;
+		message?: string;
+	};
 
-  type APIErrorInfo = {
-    type: string;
-    details?: ErrorDetail[];
-  };
+	type APIErrorInfo = {
+		type: string;
+		details?: ErrorDetail[];
+	};
 
-  type APIErrorType = string | ErrorInfo;
+	type APIErrorType = string | ErrorInfo;
 
-  interface LogOptions {
-    req: Request;
-    res?: Response;
-    message?: string;
-    data?: unknown;
-    error?: unknown;
-    label?: string;
-  }
+	interface LogOptions {
+		req: Request;
+		res?: Response;
+		message?: string;
+		data?: unknown;
+		error?: unknown;
+		label?: string;
+	}
 
-  type RequestValidate = {
-    body?: ZodTypeAny;
-    query?: ZodTypeAny;
-    params?: ZodTypeAny;
-  };
+	type RequestValidate = {
+		body?: ZodTypeAny;
+		query?: ZodTypeAny;
+		params?: ZodTypeAny;
+	};
 
-  type Role = "user";
+	type Role = "user";
 
-  type TokenPayload = {
-    userId: string;
-    role: "user";
-  };
+	type TokenPayload = {
+		userId: string;
+		role: "user";
+	};
 
-  type CreateUser = Pick<
-    UserDocument,
-    "_id" | "name" | "email" | "password" | "role"
-  >;
+	type CreateUser = Pick<
+		UserDocument,
+		"_id" | "name" | "email" | "password" | "role"
+	>;
 
-  type CreateToken = Pick<
-    TokenDocument,
-    "_id" | "userId" | "token" | "userAgent" | "ipAddress" | "expiresAt"
-  >;
+	type CreateToken = Pick<
+		TokenDocument,
+		"_id" | "userId" | "token" | "userAgent" | "ipAddress" | "expiresAt"
+	>;
 
-  type CreateBook = Pick<
-    BookDocument,
-    "userId" | "title" | "subtitle" | "author" | "chapters"
-  >;
+	type CreateBook = Pick<
+		BookDocument,
+		"userId" | "title" | "subtitle" | "author" | "chapters"
+	>;
 
-  type FormatType = "application/json" | "text/plain";
+	type FormatType = "application/json" | "text/plain";
 
-  interface MarkdownToken {
-    type: string;
-    tag?: string;
-    content?: string;
-    children?: MarkdownToken[] | null;
-  }
+	interface MarkdownToken {
+		type: string;
+		tag?: string;
+		content?: string;
+		children?: MarkdownToken[] | null;
+	}
 
-  interface InlineRenderOptions {
-    align?: "left" | "center" | "right" | "justify";
-    indent?: number;
-    lineGap?: number;
-  }
+	interface InlineRenderOptions {
+		align?: "left" | "center" | "right" | "justify";
+		indent?: number;
+		lineGap?: number;
+	}
 
-  interface RenderMarkdownOptions {
-    doc: PDFKit.PDFDocument;
-    markdown: string;
-    md: MarkdownIt;
-  }
+	interface RenderMarkdownOptions {
+		doc: PDFKit.PDFDocument;
+		markdown: string;
+		md: MarkdownIt;
+	}
 }

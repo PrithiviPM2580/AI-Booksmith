@@ -7,18 +7,18 @@ import { z } from "zod";
 // exportDocxSchema {} — Schema for exporting as DOCX
 // ------------------------------------------------------
 export const exportDocxSchema = {
-  params: z.object({
-    bookId: z.string("Book ID must be a string").min(1, "Book ID is required"),
-  }),
+	params: z.object({
+		bookId: z.string("Book ID must be a string").min(1, "Book ID is required"),
+	}),
 };
 
 // ------------------------------------------------------
 // exportPdfSchema {} — Schema for exporting as PDF
 // ------------------------------------------------------
 export const exportPdfSchema = {
-  params: z.object({
-    bookId: z.string("Book ID must be a string").min(1, "Book ID is required"),
-  }),
+	params: z.object({
+		bookId: z.string("Book ID must be a string").min(1, "Book ID is required"),
+	}),
 };
 
 // ------------------------------------------------------
